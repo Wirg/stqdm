@@ -1,7 +1,6 @@
 from time import sleep
 
 import streamlit as st
-
 from stqdm import stqdm
 
 columns = st.beta_columns(3)
