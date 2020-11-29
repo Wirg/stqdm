@@ -2,6 +2,7 @@ from unittest.mock import patch
 from tqdm import tqdm
 from stqdm.stqdm import stqdm
 
+
 @patch("streamlit.empty")
 def test_write_tqdm_description(empty_mock):
     stqdmed_iterator = stqdm(range(2))
