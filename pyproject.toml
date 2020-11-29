@@ -30,9 +30,8 @@ exclude = '''
 '''
 
 [tool.pytest.ini_options]
-addopts = -ra --cov-fail-under=15 --cov stqdm
-testpaths =
-    tests
+addopts = "-ra --cov-fail-under=15 --cov stqdm"
+testpaths = ["tests"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
