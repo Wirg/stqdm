@@ -19,7 +19,7 @@ pytest-cov = "^2.10.1"
 
 [tool.black]
 line-length = 127
-target-version = ['py34', 'py35', 'py36', 'py37', 'py38']
+target-version = ['py35', 'py36', 'py37', 'py38']
 include = '\.pyi?$'
 exclude = '''
 /(
