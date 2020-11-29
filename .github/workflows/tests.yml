@@ -1,0 +1,135 @@
+name: Tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  # TODO: refactor build when https://github.community/t5/GitHub-Actions/reusing-sharing-inheriting-steps-between-jobs-declarations/td-p/37849
+  flake8:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7]
+        tensorflow-version: [2.1, 2.2]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Poetry
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install poetry
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project false
+          poetry config virtualenvs.path ~/.virtualenvs
+          poetry run pip install --upgrade pip
+      - name: Poetry Version
+        id: poetry-version
+        run: |
+          echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v1
+        id: cache
+        with:
+          path: ~/.virtualenvs
+          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: |
+          poetry install
+          poetry run pip freeze
+        if: steps.cache.outputs.cache-hit != 'true'
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings.
+          poetry run flake8 . --count --exit-zero --statistics
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7]
+        tensorflow-version: [2.1, 2.2]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Poetry
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install poetry
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project false
+          poetry config virtualenvs.path ~/.virtualenvs
+          poetry run pip install --upgrade pip
+      - name: Poetry Version
+        id: poetry-version
+        run: |
+          echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v1
+        id: cache
+        with:
+          path: ~/.virtualenvs
+          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: |
+          poetry install
+          poetry run pip freeze
+        if: steps.cache.outputs.cache-hit != 'true'
+      - name: Test with pytest
+        run: |
+          poetry run pytest --cov-report xml:codecov.xml
+      - name: Codecov
+        run: |
+          bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }}
+  black:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Poetry
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install poetry
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project false
+          poetry config virtualenvs.path ~/.virtualenvs
+          poetry run pip install --upgrade pip
+      - name: Poetry Version
+        id: poetry-version
+        run: |
+          echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v1
+        id: cache
+        with:
+          path: ~/.virtualenvs
+          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: |
+          poetry install
+          poetry run pip freeze
+        if: steps.cache.outputs.cache-hit != 'true'
+      - name: Lint with Black
+        run: |
+          poetry run black . --check
