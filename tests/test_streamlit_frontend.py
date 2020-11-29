@@ -1,5 +1,7 @@
 from unittest.mock import patch
+
 from tqdm import tqdm
+
 from stqdm.stqdm import stqdm
 
 
