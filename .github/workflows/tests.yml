@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   # TODO: refactor build when https://github.community/t5/GitHub-Actions/reusing-sharing-inheriting-steps-between-jobs-declarations/td-p/37849
