@@ -1,5 +1,5 @@
 import streamlit as st
-from tqdm.std import tqdm
+from tqdm.auto import tqdm
 
 
 class stqdm(tqdm):
