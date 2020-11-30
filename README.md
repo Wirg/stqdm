@@ -1,6 +1,15 @@
 # stqdm
 ![Tests](https://github.com/Wirg/stqdm/workflows/Tests/badge.svg)
 
+stqdm is the simplest way to handle a progress bar in streamlit.
+
+![demo gif](assets/demo.gif)
+
+## How to install
+
+```sh
+pip install stqdm
+```
 
 ## How to use
 
