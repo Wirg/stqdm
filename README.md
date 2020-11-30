@@ -1,7 +1,7 @@
 # stqdm
 ![Tests](https://github.com/Wirg/stqdm/workflows/Tests/badge.svg)
 
-stqdm is the simplest way to handle a progress bar in streamlit.
+stqdm is the simplest way to handle a progress bar in streamlit app.
 
 ![demo gif](assets/demo.gif)
 
@@ -31,5 +31,17 @@ import streamlit as st
 from stqdm import stqdm
 
 for _ in stqdm(range(50), st_container=st.sidebar):
+    sleep(0.5)
+```
+
+### Customize the bar with tqdm parameters
+
+![demo gif](demo_with_custom_params.gif)
+
+```python
+from time import sleep
+from stqdm import stqdm
+
+for _ in stqdm(range(50), desc="This is a slow task", mininterval=1):
     sleep(0.5)
 ```
