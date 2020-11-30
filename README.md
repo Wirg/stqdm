@@ -36,7 +36,7 @@ for _ in stqdm(range(50), st_container=st.sidebar):
 
 ### Customize the bar with tqdm parameters
 
-![demo gif](demo_with_custom_params.gif)
+![demo gif](assets/demo_with_custom_params.gif)
 
 ```python
 from time import sleep
