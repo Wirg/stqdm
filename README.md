@@ -4,7 +4,7 @@
 
 stqdm is the simplest way to handle a progress bar in streamlit app.
 
-![demo gif](assets/demo.gif)
+![demo gif](https://raw.githubusercontent.com/Wirg/stqdm/main/assets/demo.gif)
 
 ## How to install
 
@@ -37,7 +37,7 @@ for _ in stqdm(range(50), st_container=st.sidebar):
 
 ### Customize the bar with tqdm parameters
 
-![demo gif](assets/demo_with_custom_params.gif)
+![demo gif](https://raw.githubusercontent.com/Wirg/stqdm/main/assets/demo_with_custom_params.gif)
 
 ```python
 from time import sleep
