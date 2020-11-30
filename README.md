@@ -1,6 +1,11 @@
 # stqdm
 ![Tests](https://github.com/Wirg/stqdm/workflows/Tests/badge.svg)
 
+## Install
+
+```sh
+pip install stqdm
+```
 
 ## How to use
 
