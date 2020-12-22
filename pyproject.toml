@@ -11,6 +11,11 @@ repository = "https://github.com/Wirg/stqdm"
 include = [
     "LICENSE",
 ]
+classifiers = [
+    "Framework :: Streamlit",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 
 [tool.poetry.dependencies]
 python = "^3.6"
