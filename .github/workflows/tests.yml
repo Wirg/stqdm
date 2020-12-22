@@ -35,8 +35,8 @@ jobs:
           echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
       - name: Add specific build dependecies
         run: |
-          poetry add --lock tqdm${tqdm-version}
-          poetry add --lock streamlit${streamlit-version}
+          poetry add --lock tqdm${{ matrix.tqdm-version }}
+          poetry add --lock streamlit${{ matrix.streamlit-version }}
       - name: Cache Poetry virtualenv
         uses: actions/cache@v1
         id: cache
@@ -83,8 +83,8 @@ jobs:
           echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
       - name: Add specific build dependecies
         run: |
-          poetry add --lock tqdm${tqdm-version}
-          poetry add --lock streamlit${streamlit-version}
+          poetry add --lock tqdm${{ matrix.tqdm-version }}
+          poetry add --lock streamlit${{ matrix.streamlit-version }}
       - name: Cache Poetry virtualenv
         uses: actions/cache@v1
         id: cache
@@ -131,8 +131,8 @@ jobs:
           echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
       - name: Add specific build dependecies
         run: |
-          poetry add --lock tqdm${tqdm-version}
-          poetry add --lock streamlit${streamlit-version}
+          poetry add --lock tqdm${{ matrix.tqdm-version }}
+          poetry add --lock streamlit${{ matrix.streamlit-version }}
       - name: Cache Poetry virtualenv
         uses: actions/cache@v1
         id: cache
