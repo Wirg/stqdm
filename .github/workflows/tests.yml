@@ -12,7 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8]
+        tqdm-version: ["~4.23.4", "~4.54.1", "@latest"]
+        streamlit-version: ["~0.60.1", "~0.73.1", "@latest"]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -31,6 +33,10 @@ jobs:
         id: poetry-version
         run: |
           echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
+      - name: Add specific build dependecies
+        run: |
+          poetry add --lock tqdm${tqdm-version}
+          poetry add --lock streamlit${streamlit-version}
       - name: Cache Poetry virtualenv
         uses: actions/cache@v1
         id: cache
@@ -54,7 +60,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8]
+        tqdm-version: ["~4.23.4", "~4.54.1", "@latest"]
+        streamlit-version: ["~0.60.1", "~0.73.1", "@latest"]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -73,6 +81,10 @@ jobs:
         id: poetry-version
         run: |
           echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
+      - name: Add specific build dependecies
+        run: |
+          poetry add --lock tqdm${tqdm-version}
+          poetry add --lock streamlit${streamlit-version}
       - name: Cache Poetry virtualenv
         uses: actions/cache@v1
         id: cache
@@ -96,7 +108,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8]
+        tqdm-version: ["~4.23.4", "~4.54.1", "@latest"]
+        streamlit-version: ["~0.60.1", "~0.73.1", "@latest"]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -115,6 +129,10 @@ jobs:
         id: poetry-version
         run: |
           echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
+      - name: Add specific build dependecies
+        run: |
+          poetry add --lock tqdm${tqdm-version}
+          poetry add --lock streamlit${streamlit-version}
       - name: Cache Poetry virtualenv
         uses: actions/cache@v1
         id: cache
