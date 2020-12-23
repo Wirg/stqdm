@@ -14,7 +14,7 @@ jobs:
       matrix:
         python-version: [ 3.6, 3.7, 3.8 ]
         tqdm-version: [ "~4.50.0", "~4.54.1", "@latest" ]
-        streamlit-version: [ "~0.60.0", "~0.73.1", "@latest" ]
+        streamlit-version: [ "~0.66.0", "~0.73.1", "@latest" ]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -62,7 +62,7 @@ jobs:
       matrix:
         python-version: [3.6, 3.7, 3.8]
         tqdm-version: ["~4.50.0", "~4.54.1", "@latest"]
-        streamlit-version: ["~0.60.0", "~0.73.1", "@latest"]
+        streamlit-version: ["~0.66.0", "~0.73.1", "@latest"]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -115,7 +115,7 @@ jobs:
       matrix:
         python-version: [3.6, 3.7, 3.8]
         tqdm-version: ["~4.50.0", "~4.54.1", "@latest"]
-        streamlit-version: ["~0.60.0", "~0.73.1", "@latest"]
+        streamlit-version: ["~0.66.0", "~0.73.1", "@latest"]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -168,7 +168,7 @@ jobs:
       matrix:
         python-version: [3.6, 3.7, 3.8]
         tqdm-version: ["~4.50.0", "~4.54.1", "@latest"]
-        streamlit-version: ["~0.60.0", "~0.73.1", "@latest"]
+        streamlit-version: ["~0.66.0", "~0.73.1", "@latest"]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}

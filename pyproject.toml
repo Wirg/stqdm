@@ -20,7 +20,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.6"
 tqdm = "^4.50"
-streamlit = ">=0.60"
+streamlit = "^0.66"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
