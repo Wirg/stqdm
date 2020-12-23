@@ -33,19 +33,22 @@ jobs:
         id: poetry-version
         run: |
           echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
-      - name: Add specific build dependencies
-        run: |
-          poetry add --lock tqdm${{ matrix.tqdm-version }}
-          poetry add --lock streamlit${{ matrix.streamlit-version }}
       - name: Cache Poetry virtualenv
         uses: actions/cache@v1
         id: cache
         with:
           path: ~/.virtualenvs
-          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-
             ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-
+      - name: Add specific build dependencies
+        run: |
+          poetry add --lock tqdm${{ matrix.tqdm-version }}
+          poetry add --lock streamlit${{ matrix.streamlit-version }}
+        if: steps.cache.outputs.cache-hit != 'true'
       - name: Install dependencies
         run: |
           poetry install
@@ -78,18 +81,22 @@ jobs:
         id: poetry-version
         run: |
           echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
-      - name: Add specific build dependencies
-        run: |
-          poetry add --lock tqdm${{ matrix.tqdm-version }}
-          poetry add --lock streamlit${{ matrix.streamlit-version }}
       - name: Cache Poetry virtualenv
         uses: actions/cache@v1
         id: cache
         with:
           path: ~/.virtualenvs
-          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-
+      - name: Add specific build dependencies
+        run: |
+          poetry add --lock tqdm${{ matrix.tqdm-version }}
+          poetry add --lock streamlit${{ matrix.streamlit-version }}
+        if: steps.cache.outputs.cache-hit != 'true'
       - name: Install dependencies
         run: |
           poetry install
@@ -127,18 +134,22 @@ jobs:
         id: poetry-version
         run: |
           echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
-      - name: Add specific build dependencies
-        run: |
-          poetry add --lock tqdm${{ matrix.tqdm-version }}
-          poetry add --lock streamlit${{ matrix.streamlit-version }}
       - name: Cache Poetry virtualenv
         uses: actions/cache@v1
         id: cache
         with:
           path: ~/.virtualenvs
-          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-
+      - name: Add specific build dependencies
+        run: |
+          poetry add --lock tqdm${{ matrix.tqdm-version }}
+          poetry add --lock streamlit${{ matrix.streamlit-version }}
+        if: steps.cache.outputs.cache-hit != 'true'
       - name: Install dependencies
         run: |
           poetry install
@@ -176,18 +187,22 @@ jobs:
         id: poetry-version
         run: |
           echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
-      - name: Add specific build dependencies
-        run: |
-          poetry add --lock tqdm${{ matrix.tqdm-version }}
-          poetry add --lock streamlit${{ matrix.streamlit-version }}
       - name: Cache Poetry virtualenv
         uses: actions/cache@v1
         id: cache
         with:
           path: ~/.virtualenvs
-          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-
+            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ steps.poetry-version.outputs.version }}-
+      - name: Add specific build dependencies
+        run: |
+          poetry add --lock tqdm${{ matrix.tqdm-version }}
+          poetry add --lock streamlit${{ matrix.streamlit-version }}
+        if: steps.cache.outputs.cache-hit != 'true'
       - name: Install dependencies
         run: |
           poetry install
