@@ -33,7 +33,7 @@ jobs:
         id: poetry-version
         run: |
           echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
-      - name: Add specific build dependecies
+      - name: Add specific build dependencies
         run: |
           poetry add --lock tqdm${{ matrix.tqdm-version }}
           poetry add --lock streamlit${{ matrix.streamlit-version }}
@@ -78,7 +78,7 @@ jobs:
         id: poetry-version
         run: |
           echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
-      - name: Add specific build dependecies
+      - name: Add specific build dependencies
         run: |
           poetry add --lock tqdm${{ matrix.tqdm-version }}
           poetry add --lock streamlit${{ matrix.streamlit-version }}
@@ -127,7 +127,7 @@ jobs:
         id: poetry-version
         run: |
           echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
-      - name: Add specific build dependecies
+      - name: Add specific build dependencies
         run: |
           poetry add --lock tqdm${{ matrix.tqdm-version }}
           poetry add --lock streamlit${{ matrix.streamlit-version }}
@@ -176,7 +176,7 @@ jobs:
         id: poetry-version
         run: |
           echo "::set-output name=version::$(poetry --version | grep -oP '[\d\.]+')"
-      - name: Add specific build dependecies
+      - name: Add specific build dependencies
         run: |
           poetry add --lock tqdm${{ matrix.tqdm-version }}
           poetry add --lock streamlit${{ matrix.streamlit-version }}
