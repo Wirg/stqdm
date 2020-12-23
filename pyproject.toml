@@ -19,7 +19,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.6"
-tqdm = "^4"
+tqdm = "^4.31.1"
 streamlit = ">=0.60"
 
 [tool.poetry.dev-dependencies]
