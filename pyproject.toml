@@ -12,7 +12,6 @@ include = [
     "LICENSE",
 ]
 classifiers = [
-    "Framework :: Streamlit",
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
