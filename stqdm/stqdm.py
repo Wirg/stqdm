@@ -31,10 +31,14 @@ class stqdm(tqdm):
         colour=None,
         gui=False,
         st_container=None,
+        backend=False,
+        frontend=True,
         **kwargs,
     ):
         if st_container is None:
             st_container = st
+        self._backend = backend
+        self._frontend = frontend
         self.st_container = st_container
         self._st_progress_bar = None
         self._st_text = None
@@ -85,9 +89,11 @@ class stqdm(tqdm):
             self.st_progress_bar.progress(n / total)
 
     def display(self, msg=None, pos=None):
-        displayed = super().display(msg, pos)
-        self.st_display(**self.format_dict)
-        return displayed
+        if self._backend:
+            super().display(msg, pos)
+        if self._frontend:
+            self.st_display(**self.format_dict)
+        return True
 
     def st_clear(self):
         if self._st_text is not None:
