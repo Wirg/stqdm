@@ -1,6 +1,7 @@
 # stqdm
 ![Tests](https://github.com/Wirg/stqdm/workflows/Tests/badge.svg)
 [![codecov](https://codecov.io/gh/Wirg/stqdm/branch/main/graph/badge.svg?token=YeHnzpfMty)](https://codecov.io/gh/Wirg/stqdm)
+[![CodeQL](https://github.com/Wirg/stqdm/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Wirg/stqdm/actions/workflows/codeql-analysis.yml)
 
 stqdm is the simplest way to handle a progress bar in streamlit app.
 
