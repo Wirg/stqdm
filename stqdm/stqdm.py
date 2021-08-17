@@ -1,8 +1,12 @@
 import streamlit as st
-from tqdm.auto import tqdm
+import tqdm
+
+DEFAULT_BACKEND = False
+DEFAULT_FRONTEND = True
+DEFAULT_ST_CONTAINER = st
 
 
-class stqdm(tqdm):
+class stqdm(tqdm.tqdm):
     def __init__(
         self,
         iterable=None,
@@ -31,12 +35,17 @@ class stqdm(tqdm):
         colour=None,
         gui=False,
         st_container=None,
-        backend=False,
-        frontend=True,
+        backend=None,
+        frontend=None,
         **kwargs,
     ):
         if st_container is None:
-            st_container = st
+            st_container = DEFAULT_ST_CONTAINER
+        if backend is None:
+            backend = DEFAULT_BACKEND
+        if frontend is None:
+            frontend = DEFAULT_FRONTEND
+
         self._backend = backend
         self._frontend = frontend
         self.st_container = st_container
@@ -106,3 +115,13 @@ class stqdm(tqdm):
     def close(self):
         super().close()
         self.st_clear()
+
+    @classmethod
+    def tqdm_start(cls, backend=False, frontend=True, st_container=None):
+        global DEFAULT_BACKEND, DEFAULT_FRONTEND, DEFAULT_ST_CONTAINER
+        DEFAULT_BACKEND = backend
+        DEFAULT_FRONTEND = frontend
+        if st_container is None:
+            st_container = st
+        DEFAULT_ST_CONTAINER = st_container
+        tqdm.tqdm = cls
