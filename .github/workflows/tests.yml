@@ -12,9 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ 3.6, 3.7, 3.8 ]
-        tqdm-version: [ "~4.50.0", "~4.54.1", "@latest" ]
-        streamlit-version: [ "~0.66.0", "~0.73.1", "@latest" ]
+        python-version: [ 3.6, 3.7, 3.8, 3.9 ]
+        tqdm-version: [ "~4.50.0", "~4.54.1", "~4.62.3", "@latest" ]
+        streamlit-version: [ "~0.66.0", "~1.1.0", "@latest" ]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
