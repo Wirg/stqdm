@@ -33,12 +33,12 @@ jobs:
         id: cache
         with:
           path: requirements.txt
-          key: requirements-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+          key: requirements-${{ runner.os }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
           restore-keys: |
-            requirements-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
-            requirements-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-
-            requirements-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-
-            requirements-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-
+            requirements-${{ runner.os }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+            requirements-${{ runner.os }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-
+            requirements-${{ runner.os }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-
+            requirements-${{ runner.os }}-poetry-${{ matrix.poetry-version }}-
       - name: Add specific build dependencies
         run: |
           poetry add --lock tqdm${{ matrix.tqdm-version }} streamlit${{ matrix.streamlit-version }}
@@ -72,12 +72,9 @@ jobs:
         id: cache-requirements
         with:
           path: requirements.txt
-          key: requirements-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+          key: requirements-${{ runner.os }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
           restore-keys: |
-            requirements-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
-            requirements-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-
-            requirements-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-
-            requirements-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-
+            requirements-${{ runner.os }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
         if: steps.cache.outputs.cache-hit != 'true'
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
