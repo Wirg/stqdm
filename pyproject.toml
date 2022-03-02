@@ -17,12 +17,12 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.6.2"
+python = ">=3.6.2,<4.0.0"
 tqdm = ">=4.50"
 streamlit = ">=0.66"
 
 [tool.poetry.dev-dependencies]
-black = "22.1.0"
+black = "21.12b0"
 flake8 = "4.0.1"
 pytest = "7.0.1"
 pytest-cov = "3.0.0"
