@@ -106,7 +106,7 @@ jobs:
       - name: Install dependencies
         run: |
           source ~/.venv/bin/activate
-          poetry install --no-root --no-interaction
+          poetry install --no-interaction
           pip freeze
         if: steps.cache.outputs.cache-hit != 'true'
 
