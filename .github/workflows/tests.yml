@@ -68,12 +68,12 @@ jobs:
         id: cache
         with:
           path: ~/.venv
-          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
-            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-
-            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-
-            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-
+            venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+            venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-
+            venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-
+            venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-
       - name: Cache Poetry.lock
         uses: actions/cache@v2
         id: cache-lock
@@ -126,9 +126,9 @@ jobs:
         id: cache
         with:
           path: ~/.venv
-          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+            venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
       - name: Lint with flake8
         run: |
           source ~/.venv/bin/activate
@@ -153,9 +153,9 @@ jobs:
         id: cache
         with:
           path: ~/.venv
-          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+            venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
       - name: Test with pytest
         run: |
           source ~/.venv/bin/activate
@@ -180,9 +180,9 @@ jobs:
         id: cache
         with:
           path: ~/.venv
-          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+            venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
         if: steps.cache.outputs.cache-hit != 'true'
       - name: Lint with Black
         run: |
