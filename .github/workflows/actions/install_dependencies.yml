@@ -17,7 +17,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@v2
     - name: Set up Python ${{ inputs.python-version }}
       uses: actions/setup-python@v1
       with:

@@ -24,6 +24,7 @@ jobs:
         streamlit-version: [ ">=0.66,<0.67", ">=1.1,<1.2", "" ]
       fail-fast: false
     steps:
+      - uses: actions/checkout@v2
       - uses: ./.github/workflows/actions/install_dependencies
         with:
           python-version: ${{ matrix.python-version }}
