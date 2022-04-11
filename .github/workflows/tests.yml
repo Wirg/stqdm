@@ -19,9 +19,9 @@ jobs:
     strategy:
       matrix:
         poetry-version: [ "1.1.10" ]
-        python-version: [ 3.6, 3.7, 3.8, 3.9 ]
-        tqdm-version: [ ">=4.50,<4.51", ">=4.62,<4.63", "" ]
-        streamlit-version: [ ">=0.66,<0.67", ">=1.1,<1.2", "" ]
+        python-version: [ 3.7, 3.8, 3.9 ]
+        tqdm-version: [ "==4.50", "==4.63", "" ]
+        streamlit-version: [ "==0.66", "==1.8", "" ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -37,9 +37,9 @@ jobs:
     strategy:
       matrix:
         poetry-version: [ "1.1.10" ]
-        python-version: [ 3.6, 3.7, 3.8, 3.9 ]
-        tqdm-version: [ ">=4.50,<4.51", ">=4.62,<4.63", "" ]
-        streamlit-version: [ ">=0.66,<0.67", ">=1.1,<1.2", "" ]
+        python-version: [ 3.7, 3.8, 3.9 ]
+        tqdm-version: [ "==4.50", "==4.63", "" ]
+        streamlit-version: [ "==0.66", "==1.8", "" ]
     steps:
       - uses: ./.github/workflows/actions/install_dependencies
         with:
@@ -53,10 +53,10 @@ jobs:
     needs: build-dependencies
     strategy:
       matrix:
-        python-version: [3.7, 3.9]
-        tqdm-version: ["==4.50.0", "@latest"]
-        streamlit-version: ["==0.66.0", "@latest"]
         poetry-version: [ "1.1.10" ]
+        python-version: [3.7, 3.9]
+        tqdm-version: [ "==4.50", "==4.63", "" ]
+        streamlit-version: [ "==0.66", "==1.8", "" ]
     steps:
       - uses: actions/checkout@v2
       - name: Cache Venv
@@ -80,10 +80,10 @@ jobs:
     needs: build-dependencies
     strategy:
       matrix:
-        python-version: [ 3.7, 3.8, 3.9 ]
-        tqdm-version: [ "==4.50.0", "==4.62.3", "@latest" ]
-        streamlit-version: [ "==0.66.0", "==1.1.0", "@latest" ]
         poetry-version: [ "1.1.10" ]
+        python-version: [ 3.7, 3.8, 3.9 ]
+        tqdm-version: [ "==4.50", "==4.63", "" ]
+        streamlit-version: [ "==0.66", "==1.8", "" ]
     steps:
       - uses: actions/checkout@v2
       - name: Cache Venv
@@ -107,10 +107,10 @@ jobs:
     needs: build-dependencies
     strategy:
       matrix:
+        poetry-version: [ "1.1.10" ]
         python-version: [3.9]
         tqdm-version: [""]
         streamlit-version: [""]
-        poetry-version: [ "1.1.10" ]
     steps:
       - uses: actions/checkout@v2
       - name: Cache Venv
