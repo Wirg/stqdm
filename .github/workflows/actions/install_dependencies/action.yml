@@ -1,0 +1,58 @@
+name: 'Install Dependencies'
+description: 'Action to build the project dependencies from the main versions'
+inputs:
+  python-version:
+    required: true
+    type: string
+  tqdm-version:
+    required: true
+    type: string
+  streamlit-version:
+    required: true
+    type: string
+  poetry-version:
+    required: true
+    type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python ${{ inputs.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ inputs.poetry-version }}
+        virtualenvs-create: false
+        virtualenvs-in-project: false
+        installer-parallel: true
+    - name: Cache Venv
+      uses: actions/cache@v2
+      id: cache
+      with:
+        path: ~/.venv
+        key: venv-${{ runner.os }}-${{ inputs.python-version }}-poetry-${{ inputs.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ inputs.tqdm-version }}-streamlit-${{ inputs.streamlit-version }}
+        restore-keys: |
+          venv-${{ runner.os }}-${{ inputs.python-version }}-poetry-${{ inputs.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ inputs.tqdm-version }}-streamlit-${{ inputs.streamlit-version }}
+          venv-${{ runner.os }}-${{ inputs.python-version }}-poetry-${{ inputs.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ inputs.tqdm-version }}-streamlit-
+          venv-${{ runner.os }}-${{ inputs.python-version }}-poetry-${{ inputs.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-
+          venv-${{ runner.os }}-${{ inputs.python-version }}-poetry-${{ inputs.poetry-version }}-
+    - name: Install Venv
+      run: |
+        python -m pip install --upgrade pip
+        python -m venv ~/.venv
+      shell: bash
+    - name: Install dependencies
+      run: |
+        source ~/.venv/bin/activate
+        poetry install --no-interaction --no-root
+      shell: bash
+      if: steps.cache.outputs.cache-hit != 'true'
+    - name: Add specific build dependencies
+      run: |
+        source ~/.venv/bin/activate
+        pip install tqdm${{ inputs.tqdm-version }} streamlit${{ inputs.streamlit-version }}
+      shell: bash
+      if: steps.cache.outputs.cache-hit != 'true'

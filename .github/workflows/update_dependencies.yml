@@ -1,0 +1,54 @@
+name: Update poetry lock
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  create-macos-lock-file:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        python-version: [3.9]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Create virtualenv
+        run: |
+          which python
+          python -m venv venv
+          source venv/bin/activate
+          python -m pip install --upgrade pip
+          which python
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="/Users/runner/.local/bin:$PATH"
+          poetry --version
+          poetry config virtualenvs.in-project true
+          poetry config virtualenvs.create false
+          poetry config virtualenvs.path venv
+          source venv/bin/activate
+          which python
+      - name: Run Poetry update
+        run: |
+          source venv/bin/activate
+          export PATH="/Users/runner/.local/bin:$PATH"
+          rm poetry.lock
+          poetry update
+          poetry lock --no-update
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          commit-message: Update poetry.lock
+          title: Update poetry.lock
+          body: Update poetry.lock
+          branch: update-poetry-lock
