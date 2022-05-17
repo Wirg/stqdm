@@ -22,7 +22,7 @@ jobs:
         tqdm-version: [ "==4.50", "==4.63", "" ]
         streamlit-version: [ "==0.66", "==1.8", "" ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ./.github/workflows/actions/install_dependencies
         with:
           python-version: ${{ matrix.python-version }}
@@ -40,9 +40,9 @@ jobs:
         tqdm-version: [ "==4.50", "==4.63", "" ]
         streamlit-version: [ "==0.66", "==1.8", "" ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Cache Venv
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: cache
         with:
           path: ~/.venv
@@ -67,9 +67,9 @@ jobs:
         tqdm-version: [ "==4.50", "==4.63", "" ]
         streamlit-version: [ "==0.66", "==1.8", "" ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Cache Venv
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: cache
         with:
           path: ~/.venv
@@ -94,9 +94,9 @@ jobs:
         tqdm-version: [""]
         streamlit-version: [""]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Cache Venv
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: cache
         with:
           path: ~/.venv
