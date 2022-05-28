@@ -1,0 +1,44 @@
+name: Bump version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Semver type of new version (major / minor / patch)'
+        required: true
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out source
+      uses: actions/checkout@v3
+      with:
+        ssh-key: ${{ secrets.DEPLOY_KEY }}
+
+      - uses: ./.github/workflows/actions/install_dependencies
+        with:
+          python-version: "3.9"
+          poetry-version: "1.1.10"
+          tqdm-version: ""
+          streamlit-version: ""
+
+    - name: Setup Git
+      run: |
+        git config user.name 'Wirg'
+        git config user.email 'Wirg@users.noreply.github.com'
+
+    - name: bump version
+      run: poetry version ${{ github.event.inputs.version }}
+
+    - name: commit
+      run: git commit -am "bump to version v$(poetry version)"
+
+    - name: tag
+      run: git tag v$(poetry version)
+
+    - name: Push latest version
+      run: git push origin main --follow-tags
