@@ -87,6 +87,8 @@ class stqdm(tqdm):
         if total is not None and total > 0:
             self.st_text.write(self.format_meter(n, total, **{**kwargs, "ncols": 0}))
             self.st_progress_bar.progress(n / total)
+        if total is None:
+            self.st_text.write(self.format_meter(n, total, **{**kwargs, "ncols": 0}))
 
     def display(self, msg=None, pos=None):
         if self._backend:
