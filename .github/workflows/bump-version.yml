@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Semver type of new version (major / minor / patch)'
+        description: "Semver type of new version (major / minor / patch)"
         required: true
         type: choice
         options:
@@ -37,11 +37,12 @@ jobs:
       - name: bump version
         run: poetry version ${{ github.event.inputs.version }}
 
-      - name: commit
-        run: git commit -am "bump to version v$(poetry version --short)"
-
-      - name: tag
-        run: git tag v$(poetry version --short)
-
-      - name: Push latest version
-        run: git push origin main --follow-tags
+      - name: create new version
+        run: |
+          export RELEASE="v$(poetry version --short)"
+          export BRANCH="release/${RELEASE}"
+          git checkout -b $BRANCH
+          git commit -am "bump to version ${RELEASE}"
+          git push origin $BRANCH -f
+          gh pr create --title "[Release] ${RELEASE} => releases" --reviewer Wirg --fill --base releases --assign @me
+          gh pr create --title "[Release] ${RELEASE} => main" --reviewer Wirg --fill --base main --assign @me
