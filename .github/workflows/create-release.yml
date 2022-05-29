@@ -1,8 +1,8 @@
+name: Create Release
+
 on:
   push:
     branches: [ releases ]
-
-name: Create Release
 
 jobs:
   create-release-build-and-publish:
