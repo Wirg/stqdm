@@ -15,6 +15,7 @@ on:
 jobs:
   bump-version:
     runs-on: ubuntu-latest
+    if: github.actor == 'Wirg'
     steps:
       - name: Check out source
         uses: actions/checkout@v3
