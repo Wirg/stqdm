@@ -37,7 +37,7 @@ jobs:
       - name: bump version
         run: poetry version ${{ github.event.inputs.version }}
 
-      - name: create new version
+      - name: create release pull requests
         run: |
           export RELEASE="v$(poetry version --short)"
           export BRANCH="release/${RELEASE}"
@@ -46,5 +46,9 @@ jobs:
           git push origin $BRANCH -f
           gh pr create --title "[Release] ${RELEASE} => releases" --body "" --reviewer Wirg --assignee Wirg --head $BRANCH --base releases
           gh pr create --title "[Release] ${RELEASE} => main" --body "" --reviewer Wirg --assignee Wirg --head $BRANCH --base main
+          export RELEASE_PR_NUMBER=$(gh pr list --head $BRANCH --base releases --limit 1 | grep -oP "^\d+\b")
+          export MAIN_PR_NUMBER=$(gh pr list --head $BRANCH --base main --limit 1 | grep -oP "^\d+\b")
+          gh pr merge $(RELEASE_PR_NUMBER) --auto --squash --rebase --delete-branch
+          gh pr merge ${MAIN_PR_NUMBER} --auto --squash --rebase --delete-branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
