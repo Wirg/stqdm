@@ -8,9 +8,9 @@ on:
         required: true
         type: choice
         options:
-        - patch
-        - minor
-        - major
+          - patch
+          - minor
+          - major
 
 jobs:
   bump-version:
@@ -37,18 +37,26 @@ jobs:
       - name: bump version
         run: poetry version ${{ github.event.inputs.version }}
 
-      - name: create release pull requests
+      - id: release-data
         run: |
           export RELEASE="v$(poetry version --short)"
-          export BRANCH="release/${RELEASE}"
-          git checkout -b $BRANCH
-          git commit -am "bump to version ${RELEASE}"
-          git push origin $BRANCH -f
-          gh pr create --title "[Release] ${RELEASE} => releases" --body "" --reviewer Wirg --assignee Wirg --head $BRANCH --base releases
-          gh pr create --title "[Release] ${RELEASE} => main" --body "" --reviewer Wirg --assignee Wirg --head $BRANCH --base main
-          export RELEASE_PR_NUMBER=$(gh pr list --head $BRANCH --base releases --limit 1 | grep -oP "^\d+\b")
-          export MAIN_PR_NUMBER=$(gh pr list --head $BRANCH --base main --limit 1 | grep -oP "^\d+\b")
-          gh pr merge $(RELEASE_PR_NUMBER) --auto --squash --rebase --delete-branch
-          gh pr merge ${MAIN_PR_NUMBER} --auto --squash --rebase --delete-branch
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          echo "::set-output name=version::${RELEASE}"
+          echo "::set-output name=branch::release/${RELEASE}"
+
+      - name: create release pull requests
+        run: |
+          git checkout -b ${{ steps.release-data.outputs.branch }}
+          git commit -am "bump to version ${{ steps.release-data.outputs.version }}"
+          git push origin ${{ steps.release-data.outputs.branch }} -f
+
+      - uses: ./.github/workflows/actions/create_auto_merge_pr
+        with:
+          title: "[Release] ${{ steps.release-data.outputs.version }} => releases"
+          head: ${{ steps.release-data.outputs.branch }}
+          base: releases
+
+      - uses: ./.github/workflows/actions/create_auto_merge_pr
+        with:
+          title: "[Release] ${{ steps.release-data.outputs.version }} => main"
+          head: ${{ steps.release-data.outputs.branch }}
+          base: main
