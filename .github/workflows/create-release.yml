@@ -32,6 +32,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Create Release
+        run: gh release create ${{ steps.release-data.outputs.version }} --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload artifacts
         run: |
           gh release upload ${{ steps.release-data.outputs.version }} dist/*
