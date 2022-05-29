@@ -27,11 +27,6 @@ jobs:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
       - uses: ./.github/workflows/actions/install_dependencies
-        with:
-          python-version: "3.9"
-          poetry-version: "1.1.10"
-          tqdm-version: ""
-          streamlit-version: ""
 
       - name: Setup Git
         run: |

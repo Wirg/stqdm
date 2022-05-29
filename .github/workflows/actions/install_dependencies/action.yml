@@ -4,15 +4,19 @@ inputs:
   python-version:
     required: true
     type: string
+    default: "3.9"
   tqdm-version:
     required: true
     type: string
+    default: ""
   streamlit-version:
     required: true
     type: string
+    default: ""
   poetry-version:
     required: true
     type: string
+    default: "1.1.10"
 
 runs:
   using: composite
