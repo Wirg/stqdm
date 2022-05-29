@@ -15,7 +15,7 @@ on:
 jobs:
   bump-version:
     runs-on: ubuntu-latest
-    if: github.actor == 'Wirg'
+    if: github.actor == "Wirg"
     steps:
       - name: Check out source
         uses: actions/checkout@v3
@@ -31,8 +31,8 @@ jobs:
 
       - name: Setup Git
         run: |
-          git config user.name 'Wirg'
-          git config user.email 'Wirg@users.noreply.github.com'
+          git config user.name "Wirg"
+          git config user.email "Wirg@users.noreply.github.com"
 
       - name: bump version
         run: poetry version ${{ github.event.inputs.version }}
@@ -46,3 +46,5 @@ jobs:
           git push origin $BRANCH -f
           gh pr create --title "[Release] ${RELEASE} => releases" --reviewer Wirg --fill --base releases --assignee @me
           gh pr create --title "[Release] ${RELEASE} => main" --reviewer Wirg --fill --base main --assignee @me
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
