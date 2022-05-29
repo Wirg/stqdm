@@ -12,12 +12,14 @@ on:
         - minor
         - major
 
+jobs:
+  bump-version:
     runs-on: ubuntu-latest
     steps:
-    - name: Check out source
-      uses: actions/checkout@v3
-      with:
-        ssh-key: ${{ secrets.DEPLOY_KEY }}
+      - name: Check out source
+        uses: actions/checkout@v3
+        with:
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
 
       - uses: ./.github/workflows/actions/install_dependencies
         with:
@@ -26,19 +28,19 @@ on:
           tqdm-version: ""
           streamlit-version: ""
 
-    - name: Setup Git
-      run: |
-        git config user.name 'Wirg'
-        git config user.email 'Wirg@users.noreply.github.com'
+      - name: Setup Git
+        run: |
+          git config user.name 'Wirg'
+          git config user.email 'Wirg@users.noreply.github.com'
 
-    - name: bump version
-      run: poetry version ${{ github.event.inputs.version }}
+      - name: bump version
+        run: poetry version ${{ github.event.inputs.version }}
 
-    - name: commit
-      run: git commit -am "bump to version v$(poetry version)"
+      - name: commit
+        run: git commit -am "bump to version v$(poetry version --short)"
 
-    - name: tag
-      run: git tag v$(poetry version)
+      - name: tag
+        run: git tag v$(poetry version --short)
 
-    - name: Push latest version
-      run: git push origin main --follow-tags
+      - name: Push latest version
+        run: git push origin main --follow-tags
