@@ -41,12 +41,14 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github-token }}
     - name: Get pull request id
       id: get-pull-request-id
-      run: echo "::set-output name=pr-id::$(gh pr list --search "${{ inputs.title }}" --head ${{ inputs.head }} --base ${{ inputs.base }} --limit 1 | grep -oP "^\d+\b")"
+      run: |
+        echo PR_ID=$(gh pr list --search "${{ inputs.title }}" --head ${{ inputs.head }} --base ${{ inputs.base }} --limit 1 | grep -oP "^\d+\b")
+        echo "::set-output name=pr-id::${PR_ID}"
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
     - name: Set auto merge
-      run: gh pr merge ${{ steps.get-pull-request-id.outputs.pr-id }} --auto --squash --rebase --delete-branch
+      run: gh pr merge ${{ steps.get-pull-request-id.outputs.pr-id }} --auto --squash --delete-branch
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
