@@ -23,8 +23,6 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v3
-        with:
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
 
       - uses: ./.github/workflows/actions/install_dependencies
 
