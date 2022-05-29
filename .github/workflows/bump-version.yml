@@ -44,7 +44,7 @@ jobs:
           git checkout -b $BRANCH
           git commit -am "bump to version ${RELEASE}"
           git push origin $BRANCH -f
-          gh pr create --title "[Release] ${RELEASE} => releases" --reviewer Wirg --fill --base releases --assignee @me
-          gh pr create --title "[Release] ${RELEASE} => main" --reviewer Wirg --fill --base main --assignee @me
+          gh pr create --title "[Release] ${RELEASE} => releases" --body "" --reviewer Wirg --assignee Wirg --head $BRANCH --base releases
+          gh pr create --title "[Release] ${RELEASE} => main" --body "" --reviewer Wirg --assignee Wirg --head $BRANCH --base main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
