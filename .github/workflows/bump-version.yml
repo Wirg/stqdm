@@ -53,9 +53,11 @@ jobs:
           title: "[Release] ${{ steps.release-data.outputs.version }} => releases"
           head: ${{ steps.release-data.outputs.branch }}
           base: releases
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: ./.github/workflows/actions/create_auto_merge_pr
         with:
           title: "[Release] ${{ steps.release-data.outputs.version }} => main"
           head: ${{ steps.release-data.outputs.branch }}
           base: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
