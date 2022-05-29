@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Semver type of new version (major / minor / patch)"
+        description: "Semver type of the new version"
         required: true
         type: choice
         options:
