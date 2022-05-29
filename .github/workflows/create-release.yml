@@ -13,7 +13,8 @@ jobs:
 
       - uses: ./.github/workflows/actions/install_dependencies
 
-      - id: release-data
+      - name: export release-data
+        id: release-data
         run: |
           export RELEASE="v$(poetry version --short)"
           echo "::set-output name=version::${RELEASE}"
