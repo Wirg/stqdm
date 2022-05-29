@@ -48,7 +48,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
     - name: Set auto merge
-      run: gh pr merge ${{ steps.get-pull-request-id.outputs.pr-id }} --auto --squash --delete-branch
+      run: gh pr merge ${{ steps.get-pull-request-id.outputs.pr-id }} --auto --merge --delete-branch
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
