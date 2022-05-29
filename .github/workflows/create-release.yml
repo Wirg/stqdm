@@ -25,7 +25,7 @@ jobs:
           git push origin ${{ steps.release-data.outputs.version }}
 
       - name: Build
-        run: poetry -n build
+        run: poetry build -n
 
       - name: Create Release
         run: gh release create ${{ steps.release-data.outputs.version }} --generate-notes
@@ -39,4 +39,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish
-        run: poetry -n publish --username __token__ --password ${{ secrets.PYPI_TOKEN }}
+        run: poetry publish -n --username __token__ --password ${{ secrets.PYPI_TOKEN }}
