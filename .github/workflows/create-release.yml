@@ -1,0 +1,47 @@
+name: Create Release
+
+on:
+  push:
+    branches: [ releases ]
+
+jobs:
+  create-release-build-and-publish:
+    name: Create Release, Build & Publish to pypi
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/workflows/actions/install_dependencies
+
+      - name: export release-data
+        id: release-data
+        run: |
+          export RELEASE="v$(poetry version --short)"
+          echo "::set-output name=version::${RELEASE}"
+
+      - name: Tag & Push
+        run: |
+          git tag ${{ steps.release-data.outputs.version }}
+          git push origin ${{ steps.release-data.outputs.version }}
+
+      - name: Build
+        run: poetry build -n
+
+      - name: Create Release
+        run: gh release create ${{ steps.release-data.outputs.version }} --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release
+        run: gh release create ${{ steps.release-data.outputs.version }} --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        run: |
+          gh release upload ${{ steps.release-data.outputs.version }} dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish
+        run: poetry publish -n --username __token__ --password ${{ secrets.PYPI_TOKEN }}

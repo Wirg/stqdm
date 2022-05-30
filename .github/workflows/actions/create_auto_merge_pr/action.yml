@@ -1,0 +1,54 @@
+name: 'Create Auto Merge Pull Request'
+description: 'Action to create a pull request that automatically merge'
+inputs:
+  title:
+    required: true
+    type: string
+  head:
+    required: true
+    type: string
+  base:
+    required: true
+    type: string
+  body:
+    type: string
+    default: ""
+  reviewer:
+    type: string
+    default: Wirg
+  assignee:
+    type: string
+    default: Wirg
+  label:
+    type: string
+    default: "automated-release-pr"
+  github-token:
+    type: string
+    required: true
+outputs:
+  pr-id:
+    description: "Pull Request Id"
+    value: ${{ steps.get-pull-request-id.outputs.pr-id }}
+
+
+runs:
+  using: composite
+  steps:
+    - name: Create pull request
+      run: gh pr create --title "${{ inputs.title }}" --body "${{ inputs.body }}" --reviewer ${{ inputs.reviewer }} --assignee ${{ inputs.assignee }} --head ${{ inputs.head }} --base ${{ inputs.base }} --label ${{ inputs.label }}
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+    - name: Get pull request id
+      id: get-pull-request-id
+      run: |
+        PR_ID=$(gh pr list --search "${{ inputs.title }}" --head ${{ inputs.head }} --base ${{ inputs.base }} --limit 1 | grep -oP "^\d+\b")
+        echo "::set-output name=pr-id::${PR_ID}"
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+    - name: Set auto merge
+      run: gh pr merge ${{ steps.get-pull-request-id.outputs.pr-id }} --auto --merge --delete-branch
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}

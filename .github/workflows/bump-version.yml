@@ -1,0 +1,64 @@
+name: Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Semver type of the new version"
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prerelease
+          - prepatch
+          - preminor
+          - prepatch
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    if: github.actor == 'Wirg'
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v3
+
+      - uses: ./.github/workflows/actions/install_dependencies
+
+      - name: Setup Git
+        run: |
+          git config user.name "Wirg"
+          git config user.email "Wirg@users.noreply.github.com"
+
+      - name: bump version
+        run: poetry version ${{ github.event.inputs.version }}
+
+      - name: export release-data
+        id: release-data
+        run: |
+          export RELEASE="v$(poetry version --short)"
+          echo "::set-output name=version::${RELEASE}"
+          echo "::set-output name=branch::release/${RELEASE}"
+
+      - name: create release pull requests
+        run: |
+          git checkout -b ${{ steps.release-data.outputs.branch }}
+          git commit -am "bump to version ${{ steps.release-data.outputs.version }}"
+          git push origin ${{ steps.release-data.outputs.branch }} -f
+
+      - name: Create Release PR on releases
+        uses: ./.github/workflows/actions/create_auto_merge_pr
+        with:
+          title: "[Release] ${{ steps.release-data.outputs.version }} => releases"
+          head: ${{ steps.release-data.outputs.branch }}
+          base: releases
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release PR on main
+        uses: ./.github/workflows/actions/create_auto_merge_pr
+        with:
+          title: "[Release] ${{ steps.release-data.outputs.version }} => main"
+          head: ${{ steps.release-data.outputs.branch }}
+          base: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
