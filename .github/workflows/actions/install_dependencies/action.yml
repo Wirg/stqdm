@@ -47,10 +47,8 @@ runs:
           venv-${{ runner.os }}-${{ inputs.python-version }}-poetry-${{ inputs.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-
           venv-${{ runner.os }}-${{ inputs.python-version }}-poetry-${{ inputs.poetry-version }}-
     - name: Install Venv
-      run: |
-        ls ~/.venv
-        ls ~/.venv/bin
-        python3 -m venv ~/.venv
+      run: python3 -m venv ~/.venv
+      if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
     - name: Install dependencies
       run: |
