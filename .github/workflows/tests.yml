@@ -46,9 +46,9 @@ jobs:
         id: cache
         with:
           path: ~/.venv
-          key: venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+          key: venv-cache-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
           restore-keys: |
-            venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+            venv-cache-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
       - name: Lint with flake8
         run: |
           source ~/.venv/bin/activate
@@ -73,9 +73,9 @@ jobs:
         id: cache
         with:
           path: ~/.venv
-          key: venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+          key: venv-cache-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
           restore-keys: |
-            venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+            venv-cache-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
       - name: Test with pytest
         run: |
           source ~/.venv/bin/activate
@@ -100,9 +100,9 @@ jobs:
         id: cache
         with:
           path: ~/.venv
-          key: venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+          key: venv-cache-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
           restore-keys: |
-            venv-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
+            venv-cache-${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ matrix.tqdm-version }}-streamlit-${{ matrix.streamlit-version }}
         if: steps.cache.outputs.cache-hit != 'true'
       - name: Lint with Black
         run: |
