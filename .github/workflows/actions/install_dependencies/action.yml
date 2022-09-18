@@ -42,9 +42,10 @@ runs:
         path: ~/.venv
         key: venv-cache-${{ runner.os }}-${{ inputs.python-version }}-poetry-${{ inputs.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ inputs.tqdm-version }}-streamlit-${{ inputs.streamlit-version }}
         restore-keys: |
-#          venv-cache-${{ runner.os }}-${{ inputs.python-version }}-poetry-${{ inputs.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ inputs.tqdm-version }}-streamlit-
-#          venv-cache-${{ runner.os }}-${{ inputs.python-version }}-poetry-${{ inputs.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-
-#          venv-cache-${{ runner.os }}-${{ inputs.python-version }}-poetry-${{ inputs.poetry-version }}-
+          venv-cache-${{ runner.os }}-${{ inputs.python-version }}-poetry-${{ inputs.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-${{ inputs.tqdm-version }}-streamlit-
+          venv-cache-${{ runner.os }}-${{ inputs.python-version }}-poetry-${{ inputs.poetry-version }}-${{ hashFiles('**/poetry.lock') }}-tqdm-
+          venv-cache-${{ runner.os }}-${{ inputs.python-version }}-poetry-${{ inputs.poetry-version }}-
+
     - name: Pip & pypoetry Cache
       uses: actions/cache@v2
       with:
