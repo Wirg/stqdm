@@ -22,10 +22,10 @@ tqdm = ">=4.50"
 streamlit = ">=0.66"
 
 [tool.poetry.dev-dependencies]
-black = "21.12b0"
-flake8 = "4.0.1"
-pytest = "7.0.1"
-pytest-cov = "3.0.0"
+black = "^22.8.0"
+flake8 = "^5.0.4"
+pytest = "^7.0.3"
+pytest-cov = "^3.0.0"
 pre-commit = "^2.19.0"
 
 [tool.black]
