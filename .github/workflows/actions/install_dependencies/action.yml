@@ -16,7 +16,7 @@ inputs:
   poetry-version:
     required: true
     type: string
-    default: "1.1.10"
+    default: "1.2.1"
 
 runs:
   using: composite
@@ -35,6 +35,7 @@ runs:
         virtualenvs-create: false
         virtualenvs-in-project: false
         installer-parallel: true
+
     - name: Cache Venv
       uses: actions/cache@v2
       id: cache
