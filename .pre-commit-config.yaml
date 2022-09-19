@@ -16,9 +16,9 @@ repos:
         language: system
         types: [ python ]
         stages: [ commit ]
-      - id: lint
-        name: Linter (pylint)
-        entry: poetry run pylint
+      - id: flake8
+        name: Flake8 (Flake8)
+        entry: poetry run flake8 --count --select=E9,F63,F7,F82 --show-source --statistics
         language: system
         types: [ python ]
         stages: [ commit ]

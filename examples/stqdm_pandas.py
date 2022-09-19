@@ -1,6 +1,7 @@
 from time import sleep
 
 import pandas as pd
+
 from stqdm import stqdm
 
 stqdm.pandas()
