@@ -2,7 +2,7 @@ import streamlit as st
 from tqdm.auto import tqdm
 
 
-class stqdm(tqdm):
+class stqdm(tqdm):  # pylint: disable=invalid-name
     def __init__(
         self,
         iterable=None,
@@ -14,7 +14,7 @@ class stqdm(tqdm):
         mininterval=0.1,
         maxinterval=10.0,
         miniters=None,
-        ascii=None,
+        ascii=None,  # pylint: disable=redefined-builtin
         disable=False,
         unit="it",
         unit_scale=False,
@@ -34,7 +34,7 @@ class stqdm(tqdm):
         backend=False,
         frontend=True,
         **kwargs,
-    ):
+    ):  # pylint: disable=too-many-arguments,too-many-locals
         if st_container is None:
             st_container = st
         self._backend = backend
@@ -83,7 +83,7 @@ class stqdm(tqdm):
             self._st_text = self.st_container.empty()
         return self._st_text
 
-    def st_display(self, n, total, **kwargs):
+    def st_display(self, n, total, **kwargs):  # pylint: disable=invalid-name
         if total is not None and total > 0:
             self.st_text.write(self.format_meter(n, total, **{**kwargs, "ncols": 0}))
             self.st_progress_bar.progress(n / total)

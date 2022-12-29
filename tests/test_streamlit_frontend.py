@@ -4,7 +4,6 @@ from tqdm import tqdm
 
 from stqdm.stqdm import stqdm
 
-
 TQDM_RUN_EVERY_ITERATION = {
     "mininterval": 0,
     "miniters": 0,

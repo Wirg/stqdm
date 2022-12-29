@@ -17,37 +17,57 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.7,<4.0.0"
+python = ">=3.7.2,<4.0.0"
 tqdm = ">=4.50"
 streamlit = ">=0.66"
 
 [tool.poetry.group.dev.dependencies]
-black = "^22.8.0"
-flake8 = "^5.0.4"
-pytest = "^7.0.3"
-pytest-cov = "^3.0.0"
-pre-commit = "^2.19.0"
-isort = "^5.10.1"
+pre-commit = "^2.21.0"
+pytest = "^7.2.0"
+pytest-cov = "^4.0.0"
+black = "^22.12.0"
+click = ">=8.1" # Force for black compatibility
+isort = "^5.11.4"
+pylint = "^2.15.9"
+nox = "^2022.11.21"
+nox-poetry = "^1.0.2"
 
 [tool.black]
 line-length = 127
-target-version = ['py36', 'py37', 'py38']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \venv
-)/
-'''
+target-version = ['py37', 'py38', 'py39', 'py310']
 
 [tool.isort]
+py_version=39
 profile = "black"
 multi_line_output = 3
+skip_gitignore = true
 
 [tool.pytest.ini_options]
-addopts = "-ra --cov-fail-under=15 --cov stqdm"
+addopts = "-ra"
 testpaths = ["tests"]
+
+[tool.pylint.messages_control]
+disable = [
+    "ungrouped-imports", # already managed by isort
+    "wrong-import-order",
+    "wrong-import-position",
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "too-few-public-methods"
+]
+
+[tool.pylint.basic]
+max-line-length=140
+docstring-min-length=15
+max-args = 6
+
+[tool.pylint.miscellaneous]
+notes = ["FIXME"]
+
+[tool.pylint.similarities]
+ignore-signatures = "yes"
+ignore-imports = "yes"
+min-similarity-lines = 8
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

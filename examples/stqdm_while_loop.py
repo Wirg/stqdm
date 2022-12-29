@@ -2,14 +2,14 @@ from time import sleep
 
 from stqdm import stqdm
 
-length = 50
-increment = 1
+LENGTH = 50
+INCREMENT = 1
 
-progress = stqdm(total=length)
-index = 0
+progress = stqdm(total=LENGTH)
+INDEX = 0
 while True:
-    index += increment
-    if index == length:
+    INDEX += INCREMENT
+    if INDEX == LENGTH:
         break
-    progress.update(increment)
+    progress.update(INCREMENT)
     sleep(0.5)
