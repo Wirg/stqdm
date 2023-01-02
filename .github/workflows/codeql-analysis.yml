@@ -27,12 +27,16 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+    - uses: ./.github/workflows/actions/install_dependencies
 
     # Initializes the CodeQL tools for scanning.
+    - name: Make python accessible for CodeQL
+      run: echo "CODEQL_PYTHON=$(which python)" >> $GITHUB_ENV
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
         languages: python
+        setup-python-dependencies: false
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
