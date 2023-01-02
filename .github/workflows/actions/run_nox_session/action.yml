@@ -17,10 +17,10 @@ runs:
       with:
         python-versions: ${{ inputs.python_versions }}
     - name: Cache .nox envdir
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: cache
       with:
         path: .nox
-        key: nox-envdir-${{ runner.os }}
-    - run: poetry run nox --session "${{ inputs.nox_session }}"
+        key: nox-envdir-${{ runner.os }}-session-${{ inputs.nox_session }}
+    - run: poetry run nox --session "${{ inputs.nox_session }}" --reuse-existing-virtualenvs
       shell: bash
