@@ -4,7 +4,7 @@ import nox
 import nox_poetry
 
 LATEST = "@latest"
-PYTHON_VERSIONS = ["3.8", "3.9"]
+PYTHON_VERSIONS = ["3.7", "3.8", "3.9", "3.10"]
 
 ST_TQDM_VERSIONS = [
     ("~=0.66", "~=4.50"),
