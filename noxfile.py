@@ -1,17 +1,24 @@
-import itertools
 from typing import List
 
 import nox
 import nox_poetry
 
 LATEST = "@latest"
-python_versions = ["3.8", "3.9"]
-tqdm_versions = ["~=4.50", "~=4.63", LATEST]
-streamlit_versions = ["~=0.66", "~=1.4", "~=1.8", "~=1.12", LATEST]
+PYTHON_VERSIONS = ["3.8", "3.9"]
+
+ST_TQDM_VERSIONS = [
+    ("~=0.66", "~=4.50"),
+    ("~=1.4", "~=4.50"),
+    ("~=1.4", "~=4.63"),
+    ("~=1.8", "~=4.63"),
+    ("~=1.12", "~=4.63"),
+    ("~=1.12", LATEST),
+    (LATEST, LATEST),
+]
 
 
-@nox_poetry.session(python=["3.8", "3.9"])
-@nox.parametrize(["streamlit_version", "tqdm_version"], list(itertools.product(streamlit_versions, tqdm_versions)))
+@nox_poetry.session(python=PYTHON_VERSIONS)
+@nox.parametrize(["streamlit_version", "tqdm_version"], ST_TQDM_VERSIONS)
 def tests(session: nox.Session, streamlit_version, tqdm_version):
     dependencies_to_install_with_pip: List[str] = [
         name if version == LATEST else name + version
