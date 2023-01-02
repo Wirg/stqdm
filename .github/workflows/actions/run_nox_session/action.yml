@@ -1,0 +1,26 @@
+name: 'Run Nox Session'
+description: 'Action to run a nox session'
+inputs:
+  python_versions:
+    required: true
+    type: string
+    description: "python versions to install for nox"
+  nox_session:
+    required: true
+    type: string
+    description: "name of the nox session to run"
+
+runs:
+  using: composite
+  steps:
+    - uses: wntrblm/nox@2022.11.21
+      with:
+        python-versions: ${{ inputs.python_versions }}
+    - name: Cache .nox envdir
+      uses: actions/cache@v2
+      id: cache
+      with:
+        path: .nox
+        key: nox-envdir-${{ runner.os }}
+    - run: poetry run nox --session "${{ inputs.nox_session }}"
+      shell: bash
