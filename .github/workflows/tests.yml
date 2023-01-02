@@ -78,8 +78,14 @@ jobs:
         with:
           python_versions: ${{ join(fromJson(needs.list_nox_format_sessions.outputs.python_versions), ', ') }}
           nox_session: ${{ matrix.nox_session }}
+      - if: ${{ matrix.nox_session == 'coverage'}}
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./codecov.xml
+          flags: pytest
 
   all_test_passed:
+    # Used to easy force requirements checks in Github
     needs:
       - format
       - run_all_tests
