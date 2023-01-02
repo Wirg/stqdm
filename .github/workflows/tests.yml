@@ -53,10 +53,10 @@ jobs:
       - uses: ./.github/workflows/actions/install_dependencies
       - name: list all format sessions
         id: format_sessions
-        run: echo "matrix=$(poetry run python commands/list_nox_manifest.py --sessions black isort lint)" >> $GITHUB_OUTPUT
+        run: echo "matrix=$(poetry run python commands/list_nox_manifest.py --sessions black isort lint coverage)" >> $GITHUB_OUTPUT
       - name: list all test python versions
         id: python_versions
-        run: echo "matrix=$(poetry run python commands/list_nox_manifest.py --sessions black isort lint --list-python-versions)" >> $GITHUB_OUTPUT
+        run: echo "matrix=$(poetry run python commands/list_nox_manifest.py --sessions black isort lint coverage --list-python-versions)" >> $GITHUB_OUTPUT
 
     outputs:
       format_sessions: ${{ steps.format_sessions.outputs.matrix }}
