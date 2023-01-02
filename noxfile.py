@@ -1,8 +1,5 @@
 from typing import List
 
-from poetry.core.factory import Factory
-
-poetry = Factory().create_poetry()
 import nox
 import nox_poetry
 
