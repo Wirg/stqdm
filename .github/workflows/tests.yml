@@ -1,6 +1,7 @@
 name: Tests
 
 on:
+  workflow_call:
   push:
     branches: [ main ]
   pull_request:
@@ -85,7 +86,7 @@ jobs:
           flags: pytest
 
   all_test_passed:
-    # Used to easy force requirements checks in Github
+    # Used to easy force requirements checks in GitHub
     needs:
       - format
       - run_all_tests

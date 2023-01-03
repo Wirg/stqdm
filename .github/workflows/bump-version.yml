@@ -54,6 +54,8 @@ jobs:
           base: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # We are forced to trigger tests explicitly as we are creating the PR from a workflow
-      # See: https://github.com/cli/cli/discussions/6575#discussioncomment-4077706
-      - uses: Wirg/stqdm/.github/workflows/tests.yml@main
+  run-tests-on-pr:
+    # We are forced to trigger tests explicitly as we are creating the PR from a workflow
+    # See: https://github.com/cli/cli/discussions/6575#discussioncomment-4077706
+    uses: Wirg/stqdm/.github/workflows/tests.yml@main
+    needs: bump-version
