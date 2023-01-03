@@ -4,22 +4,27 @@ import nox
 import nox_poetry
 
 LATEST = "@latest"
-PYTHON_VERSIONS = ["3.8", "3.9"]
-
-ST_TQDM_VERSIONS = [
-    ("~=0.66", "~=4.50"),
-    ("~=1.4", "~=4.50"),
-    ("~=1.4", "~=4.63"),
-    ("~=1.8", "~=4.63"),
-    ("~=1.12", "~=4.63"),
-    ("~=1.12", LATEST),
-    (LATEST, LATEST),
-]
 
 
-@nox_poetry.session(python=PYTHON_VERSIONS)
-@nox.parametrize(["streamlit_version", "tqdm_version"], ST_TQDM_VERSIONS)
-def tests(session: nox.Session, streamlit_version, tqdm_version):
+def with_python_versions(python_versions: List[str], st_version: str, tqdm_version: str):
+    return [(python_version, st_version, tqdm_version) for python_version in python_versions]
+
+
+PYTHON_ST_TQDM_VERSIONS = (
+    with_python_versions(["3.7", "3.8", "3.9"], "~=0.66", "~=4.50")
+    + with_python_versions(["3.8", "3.9"], "~=0.66", "~=4.50")
+    + with_python_versions(["3.8", "3.9"], "~=1.4", "~=4.50")
+    + with_python_versions(["3.8", "3.9"], "~=1.4", "~=4.63")
+    + with_python_versions(["3.8", "3.9", "3.10"], "~=1.8", "~=4.63")
+    + with_python_versions(["3.8", "3.9", "3.10"], "~=1.12", "~=4.63")
+    + with_python_versions(["3.9", "3.10"], "~=1.12", LATEST)
+    + with_python_versions(["3.9", "3.10"], LATEST, LATEST)
+)
+
+
+@nox_poetry.session
+@nox.parametrize(["python", "streamlit_version", "tqdm_version"], PYTHON_ST_TQDM_VERSIONS)
+def tests(session: nox_poetry.Session, streamlit_version, tqdm_version):
     dependencies_to_install_with_pip: List[str] = [
         name if version == LATEST else name + version
         for name, version in [("streamlit", streamlit_version), ("tqdm", tqdm_version)]

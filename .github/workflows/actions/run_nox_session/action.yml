@@ -16,11 +16,14 @@ runs:
     - uses: wntrblm/nox@2022.11.21
       with:
         python-versions: ${{ inputs.python_versions }}
+    - name: Escape characters from ${{ inputs.nox_session }}
+      run: echo "${{ inputs.nox_session }}" | sed "s/[,'~()\. =]/_/g" | awk '{print "nox_session_escape="$1}' >> $GITHUB_ENV
+      shell: bash
     - name: Cache .nox envdir
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: cache
       with:
         path: .nox
-        key: nox-envdir-${{ runner.os }}
-    - run: poetry run nox --session "${{ inputs.nox_session }}"
+        key: nox-envdir-${{ runner.os }}-session-${{ env.nox_session_escape }}
+    - run: poetry run nox --session "${{ inputs.nox_session }}" --reuse-existing-virtualenvs
       shell: bash
