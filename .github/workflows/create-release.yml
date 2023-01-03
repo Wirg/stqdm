@@ -9,10 +9,11 @@ on:
 
 jobs:
   create-release-build-and-publish:
-    if: (github.event.pull_request.merged == true && github.event.pull_request.mergedBy == 'Wirg' && github.base_ref == 'main')
+    if: (github.event.pull_request.merged == true && github.base_ref == 'main')
     name: Create Release, Build & Publish to pypi
     runs-on: ubuntu-latest
     steps:
+      - run: echo ${{ github.event.pull_request.mergedBy }}
       - uses: actions/checkout@v3
 
       - uses: ./.github/workflows/actions/install_dependencies
