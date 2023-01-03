@@ -2,19 +2,22 @@ name: Create Release
 
 on:
   pull_request:
-    types:
-      - opened
-    branches:
-      - 'release/**'
+    # Limit to closed PR targeting main and modifying the pyproject.toml
+    types: [ closed ]
+    branches: [ main ]
+    paths: [ pyproject.toml ]
 
 jobs:
   create-release-build-and-publish:
-    if: (github.event.pull_request.merged == true && github.base_ref == 'main')
+    # Limit to merged PR that comes from a release/v branch
+    if: (github.event.pull_request.merged == true && startsWith(github.head_ref, 'release/v'))
+    environment: publish
     name: Create Release, Build & Publish to pypi
     runs-on: ubuntu-latest
     steps:
-      - run: echo ${{ github.event.pull_request.mergedBy }}
       - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.WIRG_PAT_FOR_RELEASE }}
 
       - uses: ./.github/workflows/actions/install_dependencies
 
@@ -24,21 +27,21 @@ jobs:
           export RELEASE="v$(poetry version --short)"
           echo "version=${RELEASE}" >> $GITHUB_OUTPUT
 
-      - name: Tag & Push
+      - name: Build
+        run: poetry build -n
+
+      - name: Check Version
+        id: check-prerelease
+        run: |
+          [[ "$(poetry version --short)" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || echo prerelease_flag="--prerelease" >> $GITHUB_OUTPUT
+
+      - name: Tag "${{ steps.release-data.outputs.version }}" & Push
         run: |
           git tag ${{ steps.release-data.outputs.version }}
           git push origin ${{ steps.release-data.outputs.version }}
 
-      - name: Build
-        run: poetry build -n
-
       - name: Create Release
-        run: gh release create ${{ steps.release-data.outputs.version }} --generate-notes
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create Release
-        run: gh release create ${{ steps.release-data.outputs.version }} --generate-notes
+        run: gh release create ${{ steps.release-data.outputs.version }} --generate-notes ${{ steps.check-prerelease.outputs.prerelease_flag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

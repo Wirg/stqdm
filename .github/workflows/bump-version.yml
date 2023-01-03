@@ -18,18 +18,13 @@ on:
 
 jobs:
   bump-version:
+    environment: publish
     runs-on: ubuntu-latest
     if: github.actor == 'Wirg'
     steps:
-      - name: Check out source
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - uses: ./.github/workflows/actions/install_dependencies
-
-      - name: Setup Git
-        run: |
-          git config user.name "Wirg"
-          git config user.email "Wirg@users.noreply.github.com"
 
       - name: bump version
         run: poetry version ${{ github.event.inputs.version }}
@@ -40,16 +35,29 @@ jobs:
           export RELEASE="v$(poetry version --short)"
           echo "version=${RELEASE}" >> $GITHUB_OUTPUT
           echo "branch=release/${RELEASE}" >> $GITHUB_OUTPUT
-      - name: create release pull requests
-        run: |
-          git checkout -b ${{ steps.release-data.outputs.branch }}
-          git commit -am "bump to version ${{ steps.release-data.outputs.version }}"
-          git push origin ${{ steps.release-data.outputs.branch }} -f
 
-      - name: Create Release PR on main
-        uses: ./.github/workflows/actions/create_auto_merge_pr
+      - name: Create Pull Request "[Release] ${{ steps.release-data.outputs.version }} => main"
+        uses: peter-evans/create-pull-request@v4
+        id: create-pull-request
         with:
+          # PR
           title: "[Release] ${{ steps.release-data.outputs.version }} => main"
-          head: ${{ steps.release-data.outputs.branch }}
+          reviewers: Wirg
+          labels: release
+          branch: ${{ steps.release-data.outputs.branch }}
           base: main
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          delete-branch: true
+
+          # Commit
+          commit-message: "bump to version ${{ steps.release-data.outputs.version }}"
+          add-paths: "./pyproject.toml"
+
+          # Auth
+          token: ${{ secrets.STQDM_MACHINE_TOKEN }}
+
+      - name: Auto-merge Pull Request
+        uses: peter-evans/enable-pull-request-automerge@v2
+        with:
+          token: ${{ secrets.STQDM_MACHINE_TOKEN }}
+          pull-request-number: ${{ steps.create-pull-request.outputs.pull-request-number }}
+          merge-method: rebase
