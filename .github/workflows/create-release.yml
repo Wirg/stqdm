@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          token: ${{ secrets.STQDM_MACHINE_TOKEN }}
+          token: ${{ secrets.WIRG_PAT_FOR_RELEASE }}
 
       - uses: ./.github/workflows/actions/install_dependencies
 
