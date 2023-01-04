@@ -32,13 +32,13 @@ jobs:
       - name: Build
         run: poetry build -n
 
-      - name: Create Release
-        run: gh release create ${{ steps.release-data.outputs.version }} --generate-notes
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check Version
+        id: check-prerelease
+        run: |
+          [[ "$(poetry version --short)" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || echo prerelease_flag="--prerelease" >> $GITHUB_OUTPUT
 
       - name: Create Release
-        run: gh release create ${{ steps.release-data.outputs.version }} --generate-notes
+        run: gh release create ${{ steps.release-data.outputs.version }} --generate-notes ${{ steps.check-prerelease.outputs.prerelease_flag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
