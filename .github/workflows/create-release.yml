@@ -24,10 +24,7 @@ jobs:
           export RELEASE="v$(poetry version --short)"
           echo "version=${RELEASE}" >> $GITHUB_OUTPUT
 
-      - name: Tag & Push
-        run: |
-          git tag ${{ steps.release-data.outputs.version }}
-          git push origin ${{ steps.release-data.outputs.version }}
+
 
       - name: Build
         run: poetry build -n

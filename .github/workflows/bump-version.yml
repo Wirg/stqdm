@@ -56,6 +56,11 @@ jobs:
           # Auth
           token: ${{ secrets.STQDM_MACHINE_TOKEN }}
 
+      - name: Tag & Push
+        run: |
+          git tag ${{ steps.release-data.outputs.version }}
+          git push origin ${{ steps.release-data.outputs.version }}
+
       - name: Auto-merge Pull Request
         uses: peter-evans/enable-pull-request-automerge@v2
         with:
