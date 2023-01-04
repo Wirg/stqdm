@@ -65,5 +65,5 @@ jobs:
         uses: peter-evans/enable-pull-request-automerge@v2
         with:
           token: ${{ secrets.STQDM_MACHINE_TOKEN }}
-          pull-request-number: ${{ steps.create-pull-request.outputs.pull-request-number }}"
+          pull-request-number: ${{ steps.create-pull-request.outputs.pull-request-number }}
           merge-method: rebase
