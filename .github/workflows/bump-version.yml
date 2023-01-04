@@ -23,8 +23,6 @@ jobs:
     if: github.actor == 'Wirg'
     steps:
       - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.STQDM_MACHINE_TOKEN }}
 
       - uses: ./.github/workflows/actions/install_dependencies
 
@@ -56,11 +54,6 @@ jobs:
 
           # Auth
           token: ${{ secrets.STQDM_MACHINE_TOKEN }}
-
-      - name: Tag "${{ steps.release-data.outputs.version }}" & Push
-        run: |
-          git tag ${{ steps.release-data.outputs.version }}
-          git push origin ${{ steps.release-data.outputs.version }}
 
       - name: Auto-merge Pull Request
         uses: peter-evans/enable-pull-request-automerge@v2

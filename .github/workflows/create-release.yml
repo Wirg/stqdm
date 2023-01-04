@@ -1,19 +1,23 @@
 name: Create Release
 
 on:
-  push:
-    tags:
-      - 'v*'
-    branch:
-      - main
+  pull_request:
+    # Limit to closed PR targeting main and modifying the pyproject.toml
+    types: [ closed ]
+    branches: [ main ]
+    paths: [ pyproject.toml ]
 
 jobs:
   create-release-build-and-publish:
+    # Limit to merged PR that comes from a release/v branch
+    if: (github.event.pull_request.merged == true && startsWith(github.head_ref, 'release/v'))
     environment: publish
     name: Create Release, Build & Publish to pypi
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.STQDM_MACHINE_TOKEN }}
 
       - uses: ./.github/workflows/actions/install_dependencies
 
@@ -30,6 +34,11 @@ jobs:
         id: check-prerelease
         run: |
           [[ "$(poetry version --short)" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || echo prerelease_flag="--prerelease" >> $GITHUB_OUTPUT
+
+      - name: Tag "${{ steps.release-data.outputs.version }}" & Push
+        run: |
+          git tag ${{ steps.release-data.outputs.version }}
+          git push origin ${{ steps.release-data.outputs.version }}
 
       - name: Create Release
         run: gh release create ${{ steps.release-data.outputs.version }} --generate-notes ${{ steps.check-prerelease.outputs.prerelease_flag }}
