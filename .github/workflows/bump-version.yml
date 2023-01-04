@@ -42,23 +42,21 @@ jobs:
           echo "version=${RELEASE}" >> $GITHUB_OUTPUT
           echo "branch=release/${RELEASE}" >> $GITHUB_OUTPUT
 
-      - name: create release pull requests
-        run: |
-          git checkout -b ${{ steps.release-data.outputs.branch }}
-          git commit -am "bump to version ${{ steps.release-data.outputs.version }}"
-          git push origin ${{ steps.release-data.outputs.branch }} -f
-
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         id: create-pull-request
         with:
+          # PR
           title: "[Release] ${{ steps.release-data.outputs.version }} => main"
           reviewers: Wirg
           labels: release
           branch: ${{ steps.release-data.outputs.branch }}
           base: main
           delete-branch: true
-          add-paths: ""
+
+          # Commit
+          commit-message: "bump to version ${{ steps.release-data.outputs.version }}"
+          add-paths: "./pyproject.toml"
           github-token: ${{ secrets.STQDM_MACHINE_TOKEN }}
 
       - name: Auto-merge Pull Request
