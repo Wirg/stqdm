@@ -18,6 +18,7 @@ on:
 
 jobs:
   bump-version:
+    environment: publish
     runs-on: ubuntu-latest
     if: github.actor == 'Wirg'
     steps:
@@ -40,16 +41,29 @@ jobs:
           export RELEASE="v$(poetry version --short)"
           echo "version=${RELEASE}" >> $GITHUB_OUTPUT
           echo "branch=release/${RELEASE}" >> $GITHUB_OUTPUT
+
       - name: create release pull requests
         run: |
           git checkout -b ${{ steps.release-data.outputs.branch }}
           git commit -am "bump to version ${{ steps.release-data.outputs.version }}"
           git push origin ${{ steps.release-data.outputs.branch }} -f
 
-      - name: Create Release PR on main
-        uses: ./.github/workflows/actions/create_auto_merge_pr
-        with:
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        id: create-pull-request
+        env:
           title: "[Release] ${{ steps.release-data.outputs.version }} => main"
-          head: ${{ steps.release-data.outputs.branch }}
+          reviewers: Wirg
+          labels: release
+          branch: ${{ steps.release-data.outputs.branch }}
           base: main
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          delete-branch: true
+          add-paths: ""
+          github-token: ${{ secrets.STQDM_MACHINE_TOKEN }}
+
+      - name: Auto-merge Pull Request
+        uses: peter-evans/enable-pull-request-automerge@v2
+        with:
+          token: ${{ secrets.STQDM_MACHINE_TOKEN }}
+          pull-request-number: ${{ steps.create-pull-request.outputs.pull-request-number }}"
+          merge-method: rebase
