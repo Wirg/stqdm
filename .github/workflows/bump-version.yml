@@ -22,8 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor == 'Wirg'
     steps:
-      - name: Check out source
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.STQDM_MACHINE_TOKEN }}
 
       - uses: ./.github/workflows/actions/install_dependencies
 
@@ -37,7 +38,7 @@ jobs:
           echo "version=${RELEASE}" >> $GITHUB_OUTPUT
           echo "branch=release/${RELEASE}" >> $GITHUB_OUTPUT
 
-      - name: Create Pull Request
+      - name: Create Pull Request "[Release] ${{ steps.release-data.outputs.version }} => main"
         uses: peter-evans/create-pull-request@v4
         id: create-pull-request
         with:
@@ -56,7 +57,7 @@ jobs:
           # Auth
           token: ${{ secrets.STQDM_MACHINE_TOKEN }}
 
-      - name: Tag & Push
+      - name: Tag "${{ steps.release-data.outputs.version }}" & Push
         run: |
           git tag ${{ steps.release-data.outputs.version }}
           git push origin ${{ steps.release-data.outputs.version }}
