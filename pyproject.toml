@@ -2,7 +2,8 @@
 name = "stqdm"
 version = "0.0.5a1"
 description = "Easy progress bar for streamlit based on the awesome streamlit.progress and tqdm"
-authors = ["Wirg"]
+authors = ["Wirg <Wirg@users.noreply.github.com>"]
+maintainers = ["Wirg <Wirg@users.noreply.github.com>"]
 license = "Apache License 2.0"
 keywords = ["streamlit", "progressbar", "progressmeter", "progress", "bar", "meter", "rate", "eta", "tqdm"]
 readme = "README.md"
