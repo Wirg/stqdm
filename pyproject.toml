@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stqdm"
-version = "0.0.5a1"
+version = "0.0.5"
 description = "Easy progress bar for streamlit based on the awesome streamlit.progress and tqdm"
 authors = ["Wirg <Wirg@users.noreply.github.com>"]
 maintainers = ["Wirg <Wirg@users.noreply.github.com>"]
