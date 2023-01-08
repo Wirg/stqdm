@@ -17,7 +17,7 @@ def flag_pair_merge_func_with_no_noxfile(
     enable_name: str,
     disable_name: str,
     command_args: Namespace,
-    noxfile_args: Namespace,
+    noxfile_args: Namespace,  # pylint: disable=unused-argument
 ) -> bool:
     """Merge function for flag pairs. If the flag is set in the Noxfile or
     the command line params, return ``True`` *unless* the disable flag has been
@@ -61,6 +61,14 @@ def make_flag_pair_no_noxfile(
 
 
 _options.options.add_options(
+    *make_flag_pair_no_noxfile(
+        "json",
+        ("--json",),
+        ("--no-json",),
+        group=_options.options.groups["general"],
+        help="Should list parameters as json",
+        default=True,
+    ),
     *make_flag_pair_no_noxfile(
         "return_parametrized_sessions",
         ("--return-parametrized-sessions",),
@@ -114,6 +122,24 @@ def main() -> None:
     sys.exit(exit_code)
 
 
+def _produce_json_listing(manifest: Manifest) -> None:
+    # From https://github.com/wntrblm/nox/pull/665
+    report = []
+    for session, selected in manifest.list_all_sessions():
+        if selected:
+            report.append(
+                {
+                    "session": session.friendly_name,
+                    "name": session.name,
+                    "description": session.description or "",
+                    "python": session.func.python,
+                    "tags": session.tags,
+                    "call_spec": getattr(session.func, "call_spec", {}),
+                }
+            )
+    print(json.dumps(report))
+
+
 def list_manifest_information(manifest: Manifest, global_config: Namespace) -> int:
     """Tasks that lists sessions in the manifest and print it to stdout.
 
@@ -124,6 +150,9 @@ def list_manifest_information(manifest: Manifest, global_config: Namespace) -> i
     Returns:
         Exit Code 0
     """
+    if global_config.json:
+        _produce_json_listing(manifest)
+        return 0
     if global_config.list_python_versions:
         python_versions = {session.func.python for session in manifest if isinstance(session.func.python, str)}
         print(json.dumps(sorted(python_versions)))
