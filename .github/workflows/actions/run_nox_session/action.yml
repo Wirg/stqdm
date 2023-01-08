@@ -1,10 +1,10 @@
 name: 'Run Nox Session'
 description: 'Action to run a nox session'
 inputs:
-  python_versions:
+  python_version:
     required: true
     type: string
-    description: "python versions to install for nox"
+    description: "python version to install for nox"
   nox_session:
     required: true
     type: string
@@ -13,9 +13,14 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: wntrblm/nox@2022.11.21
+    - uses: actions/setup-python@v4
+      # Do not run if no sessions (for example nox reuse_virtualenv)
+      if:  ${{ inputs.python_version != '' }}
       with:
-        python-versions: ${{ inputs.python_versions }}
+        python-version: ${{ inputs.python_version }}
+        cache: "poetry"
+        # Install python version for nox environment but do not change default one
+        update-environment: false
     - name: Escape characters from ${{ inputs.nox_session }}
       run: echo "${{ inputs.nox_session }}" | sed "s/[,'~()\. =]/_/g" | awk '{print "nox_session_escape="$1}' >> $GITHUB_ENV
       shell: bash
