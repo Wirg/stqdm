@@ -2,6 +2,7 @@
 ![Tests](https://github.com/Wirg/stqdm/workflows/Tests/badge.svg)
 [![codecov](https://codecov.io/gh/Wirg/stqdm/branch/main/graph/badge.svg?token=YeHnzpfMty)](https://codecov.io/gh/Wirg/stqdm)
 [![CodeQL](https://github.com/Wirg/stqdm/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Wirg/stqdm/actions/workflows/codeql-analysis.yml)
+[![Downloads](https://static.pepy.tech/personalized-badge/stqdm?period=month&units=international_system&left_color=grey&right_color=brightgreen&left_text=downloads/month)](https://pepy.tech/project/stqdm)
 
 stqdm is the simplest way to handle a progress bar in streamlit app.
 
