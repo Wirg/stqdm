@@ -19,8 +19,6 @@ runs:
       with:
         python-version: ${{ inputs.python_version }}
         cache: "poetry"
-        # Install python version for nox environment but do not change default one
-        update-environment: false
     - name: Escape characters from ${{ inputs.nox_session }}
       run: echo "${{ inputs.nox_session }}" | sed "s/[,'~()\. =]/_/g" | awk '{print "nox_session_escape="$1}' >> $GITHUB_ENV
       shell: bash
