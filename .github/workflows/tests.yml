@@ -44,9 +44,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/workflows/actions/install_dependencies
+        with:
+          python_version: |
+            ${{ matrix.python }}
+            3.9
       - uses: ./.github/workflows/actions/run_nox_session
         with:
-          python_version: ${{ matrix.python }}
           nox_session: ${{ matrix.session }}
 
   list_nox_format_sessions:
@@ -74,9 +77,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/workflows/actions/install_dependencies
+        with:
+          python_version: |
+            ${{ matrix.python }}
+            3.9
       - uses: ./.github/workflows/actions/run_nox_session
         with:
-          python_version: ${{ matrix.python }}
           nox_session: ${{ matrix.session }}
       - if: ${{ matrix.session == 'coverage'}}
         uses: codecov/codecov-action@v3
