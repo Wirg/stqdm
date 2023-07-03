@@ -7,11 +7,6 @@ on:
     branches: [ main ]
   schedule:
     - cron: "0 4 * * *"
-  # Hack to work with bump version
-  # We are forced to trigger tests on human review as we are creating the PR from a workflow
-  # See: https://github.com/cli/cli/discussions/6575#discussioncomment-4077706
-  pull_request_review:
-    types: [ submitted ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.head_ref || github.ref }}
@@ -20,8 +15,6 @@ concurrency:
 
 jobs:
   list_nox_test_sessions:
-    # See pull_request_review
-    if: (github.event_name != 'pull_request_review' || github.event.review.state == 'approved')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -53,8 +46,6 @@ jobs:
           nox_session: ${{ matrix.session }}
 
   list_nox_format_sessions:
-    # See pull_request_review
-    if: (github.event_name != 'pull_request_review' || github.event.review.state == 'approved')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
