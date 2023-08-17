@@ -4,7 +4,7 @@ import streamlit as st
 
 from stqdm import stqdm
 
-columns = st.beta_columns(2)
+columns = st.columns(2)
 with columns[0]:
     st.write("No backend")
     for i in stqdm(range(50), backend=False, frontend=True):

@@ -20,7 +20,7 @@ runs:
         virtualenvs-create: true
         virtualenvs-in-project: false
         installer-parallel: true
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v4.7.0
       with:
         python-version: ${{ inputs.python_version }}
         cache: "poetry"

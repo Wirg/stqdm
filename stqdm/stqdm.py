@@ -2,7 +2,7 @@ import streamlit as st
 from tqdm.auto import tqdm
 
 
-class stqdm(tqdm):  # pylint: disable=invalid-name
+class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
     def __init__(
         self,
         iterable=None,
