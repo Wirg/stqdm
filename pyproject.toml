@@ -35,7 +35,7 @@ nox-poetry = "^1.0.2"
 
 [tool.black]
 line-length = 127
-target-version = ['py37', 'py38', 'py39', 'py310']
+target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
 
 [tool.isort]
 py_version=39
@@ -46,6 +46,12 @@ skip_gitignore = true
 [tool.pytest.ini_options]
 addopts = "-ra"
 testpaths = ["tests"]
+
+[tool.coverage.run]
+omit = [".nox/*"]
+
+[tool.pylint.main]
+ignore-paths = [".nox/"]
 
 [tool.pylint.messages_control]
 disable = [
