@@ -29,7 +29,7 @@ def fix_altair_version_to_lt_5(streamlit_version: str) -> List[str]:
 
 
 PYTHON_ST_TQDM_VERSIONS = (
-    with_python_versions(["3.7", "3.8", "3.9"], "~=0.66", "~=4.50")
+    with_python_versions(["3.8", "3.9"], "~=0.66", "~=4.50")
     + with_python_versions(["3.8", "3.9"], "~=0.66", "~=4.50")
     + with_python_versions(["3.8", "3.9"], "~=1.4", "~=4.50")
     + with_python_versions(["3.8", "3.9"], "~=1.4", "~=4.63")

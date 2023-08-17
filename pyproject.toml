@@ -18,20 +18,20 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.7.2,<4.0.0"
+python = ">=3.8.0,<4.0.0"
 tqdm = ">=4.50"
 streamlit = ">=0.66"
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^2.21.0"
-pytest = "^7.2.0"
-pytest-cov = "^4.0.0"
-black = "^22.12.0"
+pre-commit = "^3.3.3"
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+black = "^23.7.0"
 click = ">=8.1" # Force for black compatibility
-isort = "^5.11.4"
-pylint = "^2.15.9"
-nox = "^2022.11.21"
-nox-poetry = "^1.0.2"
+isort = "^5.12.0"
+pylint = "^2.17.5"
+nox = "^2023.4.22"
+nox-poetry = "^1.0.3"
 
 [tool.black]
 line-length = 127
