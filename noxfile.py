@@ -11,21 +11,29 @@ def with_python_versions(python_versions: List[str], st_version: str, tqdm_versi
     return [(python_version, st_version, tqdm_version) for python_version in python_versions]
 
 
-def fix_altair_version_to_lt_5(streamlit_version: str) -> List[str]:
+def fix_deps_issues(streamlit_version: str) -> List[str]:
+    """
+    Fix issues with streamlit and stqdm deps to ease ci
+    """
+    # Used to avoid a compatibility issue between streamlit and protobuf
+    # https://discuss.streamlit.io/t/streamlit-run-with-protobuf-error/25632/5
+    protobuf_fix = "protobuf>=3.6.0,!=3.11"
+    install_fixes = [protobuf_fix]
+
     # https://discuss.streamlit.io/t/modulenotfounderror-no-module-named-altair-vegalite-v4/42921/13
-    if streamlit_version == LATEST:
-        return []
+    altair_lower_than_5 = "altair<5"
+    if streamlit_version != LATEST:
+        # We suppose version format to be ~=version, ==version, ...
+        if streamlit_version[1] in string.digits:
+            streamlit_version = streamlit_version[1:]
+        else:
+            streamlit_version = streamlit_version[2:]
 
-    # We suppose version format to be ~=version, ==version, ...
-    if streamlit_version[1] in string.digits:
-        streamlit_version = streamlit_version[1:]
-    else:
-        streamlit_version = streamlit_version[2:]
+        st_major, st_minor = streamlit_version.split(".", maxsplit=2)[:2]
+        if (int(st_major), int(st_minor)) < (1, 22):
+            install_fixes += [altair_lower_than_5]
 
-    st_major, st_minor = streamlit_version.split(".", maxsplit=2)[:2]
-    if (int(st_major), int(st_minor)) < (1, 22):
-        return ["altair<5"]
-    return []
+    return install_fixes
 
 
 PYTHON_ST_TQDM_VERSIONS = (
@@ -50,7 +58,7 @@ def tests(session: nox_poetry.Session, streamlit_version: str, tqdm_version: str
     ]
 
     session.install("pytest", ".")
-    session.run("pip", "install", "-U", *dependencies_to_install_with_pip, *fix_altair_version_to_lt_5(streamlit_version))
+    session.run("pip", "install", "-U", *dependencies_to_install_with_pip, *fix_deps_issues(streamlit_version))
     session.run("pytest")
 
 
