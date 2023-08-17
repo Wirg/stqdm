@@ -11,27 +11,33 @@ def with_python_versions(python_versions: List[str], st_version: str, tqdm_versi
     return [(python_version, st_version, tqdm_version) for python_version in python_versions]
 
 
+def is_version_below(target: tuple[int, int], version: str) -> bool:
+    if version == LATEST:
+        return True
+    # We suppose version format to be ~=version, ==version, >version, ...
+    if version[1] in string.digits:
+        version = version[1:]
+    else:
+        version = version[2:]
+
+    st_major, st_minor = version.split(".", maxsplit=2)[:2]
+    return (int(st_major), int(st_minor)) < target
+
+
 def fix_deps_issues(streamlit_version: str) -> List[str]:
     """
     Fix issues with streamlit and stqdm deps to ease ci
     """
+    install_fixes: List[str] = []
     # Used to avoid a compatibility issue between streamlit and protobuf
     # https://discuss.streamlit.io/t/streamlit-run-with-protobuf-error/25632/5
-    protobuf_fix = "protobuf>=3.6.0,!=3.11"
-    install_fixes = [protobuf_fix]
+    if is_version_below((1, 12), streamlit_version):
+        install_fixes += ["protobuf<3.20"]
 
     # https://discuss.streamlit.io/t/modulenotfounderror-no-module-named-altair-vegalite-v4/42921/13
     altair_lower_than_5 = "altair<5"
-    if streamlit_version != LATEST:
-        # We suppose version format to be ~=version, ==version, ...
-        if streamlit_version[1] in string.digits:
-            streamlit_version = streamlit_version[1:]
-        else:
-            streamlit_version = streamlit_version[2:]
-
-        st_major, st_minor = streamlit_version.split(".", maxsplit=2)[:2]
-        if (int(st_major), int(st_minor)) < (1, 22):
-            install_fixes += [altair_lower_than_5]
+    if is_version_below((1, 22), streamlit_version):
+        install_fixes += [altair_lower_than_5]
 
     return install_fixes
 
