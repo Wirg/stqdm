@@ -1,8 +1,11 @@
+import hashlib
 import string
+from pathlib import Path
 from typing import List
 
 import nox
 import nox_poetry
+from nox_poetry.poetry import CommandSkippedError
 
 LATEST = "@latest"
 
@@ -42,6 +45,67 @@ def fix_deps_issues(streamlit_version: str) -> List[str]:
     return install_fixes
 
 
+def has_poetry_lock_changed_since_last_run(tmpdir: Path) -> bool:
+    hashfile = tmpdir / "poetry.lock.hash"
+    lockdata = Path("poetry.lock").read_bytes()
+    digest = hashlib.blake2b(lockdata).hexdigest()
+
+    if not hashfile.is_file() or hashfile.read_text() != digest:
+        hashfile.write_text(digest)
+        return True
+    return False
+
+
+def export_poetry_constraints_file(session: nox_poetry.Session, constraints_path: Path, groups: list[str]) -> None:
+    """Use poetry export to generate a constraints file with only the specified groups"""
+    output = session.run_always(
+        "poetry",
+        "export",
+        "--format=constraints.txt",
+        "--only",
+        ",".join(groups),
+        "--output",
+        str(constraints_path),
+        "--without-hashes",
+        external=True,
+        silent=True,
+        stderr=None,
+    )
+    if output is None:
+        raise CommandSkippedError("The command `poetry export` was not executed")
+
+
+def build_dependencies_to_install_list(
+    streamlit_version: str, tqdm_version: str, other_package_to_install: list[str]
+) -> List[str]:
+    dependencies_to_install_with_pip: List[str] = [
+        name if version == LATEST else name + version
+        for name, version in [("streamlit", streamlit_version), ("tqdm", tqdm_version)]
+    ]
+    dependencies_to_install_with_pip += fix_deps_issues(streamlit_version)
+    dependencies_to_install_with_pip += other_package_to_install
+    return dependencies_to_install_with_pip
+
+
+def install_deps(session: nox.Session, constraint_groups: List[str], dependencies_to_install: List[str]) -> None:
+    """
+    Do not use nox_poetry directly as it will install the dependencies based on the lock files.
+    If we force install with pip afterwards we risk to have unconstrained versions and we will reinstall everytime:
+    poetry will notice a change and reinstall and pip will notice a change and reinstall.
+    """
+    tmpdir = Path(session.create_tmp())
+    constraints_path = tmpdir / "constraints.txt"
+
+    if has_poetry_lock_changed_since_last_run(tmpdir):
+        export_poetry_constraints_file(
+            session,
+            constraints_path,
+            constraint_groups,
+        )
+
+    session.install("--upgrade", f"--constraint={constraints_path}", *dependencies_to_install)
+
+
 PYTHON_ST_TQDM_VERSIONS = (
     with_python_versions(["3.8", "3.9"], "~=0.66.0", "~=4.50.0")
     + with_python_versions(["3.8", "3.9"], "~=0.66.0", "~=4.50.0")
@@ -55,38 +119,33 @@ PYTHON_ST_TQDM_VERSIONS = (
 )
 
 
-@nox_poetry.session
+@nox.session
 @nox.parametrize(["python", "streamlit_version", "tqdm_version"], PYTHON_ST_TQDM_VERSIONS)
-def tests(session: nox_poetry.Session, streamlit_version: str, tqdm_version: str) -> None:
-    dependencies_to_install_with_pip: List[str] = [
-        name if version == LATEST else name + version
-        for name, version in [("streamlit", streamlit_version), ("tqdm", tqdm_version)]
-    ]
-
-    session.install("pytest", ".")
-    session.run("pip", "install", "-U", *dependencies_to_install_with_pip, *fix_deps_issues(streamlit_version))
+def tests(session: nox.Session, streamlit_version: str, tqdm_version: str) -> None:
+    dependencies_to_install = build_dependencies_to_install_list(streamlit_version, tqdm_version, [".", "pytest"])
+    install_deps(session, constraint_groups=["dev"], dependencies_to_install=dependencies_to_install)
     session.run("pytest")
 
 
 @nox_poetry.session(python=None)
-def coverage(session: nox.Session) -> None:
+def coverage(session: nox_poetry.Session) -> None:
     session.install("pytest", "pytest-cov", ".")
     session.run("pytest", "--cov-fail-under=15", "--cov=stqdm", "--cov-report=xml:codecov.xml")
 
 
 @nox_poetry.session(python=None)
-def isort(session: nox.Session):
+def isort(session: nox_poetry.Session):
     session.install("isort")
     session.run("isort", ".", "--check")
 
 
 @nox_poetry.session(python=None)
-def black(session: nox.Session) -> None:
+def black(session: nox_poetry.Session) -> None:
     session.install("black")
     session.run("black", ".", "--check")
 
 
 @nox_poetry.session(python=None)
-def lint(session: nox.Session) -> None:
+def lint(session: nox_poetry.Session) -> None:
     session.install("pylint", "nox", "nox_poetry", "tqdm", "streamlit")
     session.run("pylint", "stqdm", "examples", "tests", "noxfile.py")
