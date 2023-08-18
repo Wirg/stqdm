@@ -14,24 +14,45 @@ concurrency:
 
 
 jobs:
-  list_nox_test_sessions:
+  list_nox_sessions_groups:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Cache sessions results
+        id: sessions-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            format-sessions
+            test-sessions
+          key: sessions-${{ hashFiles('noxfile.py') }}
       - uses: ./.github/workflows/actions/install_dependencies
-      - name: list all test sessions
-        id: test_sessions
-        run: echo "matrix=$(poetry run python commands/list_nox_manifest.py --sessions tests --json)" >> $GITHUB_OUTPUT
+        if: steps.sessions-cache.outputs.cache-hit != 'true'
+
+      - name: List all format sessions
+        if: steps.sessions-cache.outputs.cache-hit != 'true'
+        run: echo "matrix=$(poetry run python commands/list_nox_manifest.py --sessions black isort lint coverage --json)" >> format-sessions
+      - name: List all test sessions
+        if: steps.sessions-cache.outputs.cache-hit != 'true'
+        run: echo "matrix=$(poetry run python commands/list_nox_manifest.py --sessions tests --json)" >> test-sessions
+
+      - name: Export format sessions
+        id: export-format-sessions
+        run: cat format-sessions >> $GITHUB_OUTPUT
+      - name: Export test sessions
+        id: export-test-sessions
+        run: cat test-sessions >> $GITHUB_OUTPUT
     outputs:
-      test_sessions: ${{ steps.test_sessions.outputs.matrix }}
+      format_sessions: ${{ steps.export-format-sessions.outputs.matrix }}
+      test_sessions: ${{ steps.export-test-sessions.outputs.matrix }}
 
   run_all_tests:
-    needs: list_nox_test_sessions
+    needs: list_nox_sessions_groups
     strategy:
       fail-fast: false
       matrix:
         include:
-          ${{ fromJson(needs.list_nox_test_sessions.outputs.test_sessions) }}
+          ${{ fromJson(needs.list_nox_sessions_groups.outputs.test_sessions) }}
     name: Run tests session ${{ matrix.session }}
     runs-on: ubuntu-latest
     steps:
@@ -45,24 +66,13 @@ jobs:
         with:
           nox_session: ${{ matrix.session }}
 
-  list_nox_format_sessions:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/workflows/actions/install_dependencies
-      - name: list all format sessions
-        id: format_sessions
-        run: echo "matrix=$(poetry run python commands/list_nox_manifest.py --sessions black isort lint coverage --json)" >> $GITHUB_OUTPUT
-    outputs:
-      format_sessions: ${{ steps.format_sessions.outputs.matrix }}
-
   format:
-    needs: list_nox_format_sessions
+    needs: list_nox_sessions_groups
     strategy:
       fail-fast: false
       matrix:
         include:
-          ${{ fromJson(needs.list_nox_format_sessions.outputs.format_sessions) }}
+          ${{ fromJson(needs.list_nox_sessions_groups.outputs.format_sessions) }}
     name: Run format session ${{ matrix.session }}
     runs-on: ubuntu-latest
     steps:
