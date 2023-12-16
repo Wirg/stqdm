@@ -1,5 +1,8 @@
 import streamlit as st
+from packaging import version
 from tqdm.auto import tqdm
+
+IS_TEXT_INSIDE_PROGRESS_AVAILABLE = version.parse(st.__version__) >= version.parse("1.18.0")
 
 
 class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
@@ -84,11 +87,15 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         return self._st_text
 
     def st_display(self, n, total, **kwargs):  # pylint: disable=invalid-name
+        meter_text = self.format_meter(n, total, **{**kwargs, "ncols": 0})
         if total is not None and total > 0:
-            self.st_text.write(self.format_meter(n, total, **{**kwargs, "ncols": 0}))
-            self.st_progress_bar.progress(n / total)
+            if IS_TEXT_INSIDE_PROGRESS_AVAILABLE:
+                self.st_progress_bar.progress(n / total, text=meter_text)
+            else:
+                self._st_text.write(meter_text)
+                self.st_progress_bar.progress(n / total)
         if total is None:
-            self.st_text.write(self.format_meter(n, total, **{**kwargs, "ncols": 0}))
+            self.st_text.write(meter_text)
 
     def display(self, msg=None, pos=None):
         if self._backend:
