@@ -1,9 +1,12 @@
 import re
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import streamlit as st
 from packaging import version
 from tqdm.auto import tqdm
+
+if TYPE_CHECKING:
+    from streamlit.delta_generator import DeltaGenerator
 
 IS_TEXT_INSIDE_PROGRESS_AVAILABLE = version.parse(st.__version__) >= version.parse("1.18.0")
 BAR_FORMAT_REGEX = re.compile(r"\{bar(?:[:!][a-zA-Z0-9]+){,2}}")
@@ -37,18 +40,18 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         nrows=None,
         colour=None,
         gui=False,
-        st_container=None,
-        backend=False,
-        frontend=True,
+        st_container: Optional["DeltaGenerator"] = None,
+        backend: bool = False,
+        frontend: bool = True,
         **kwargs,
     ):  # pylint: disable=too-many-arguments,too-many-locals
         if st_container is None:
             st_container = st
         self._backend = backend
         self._frontend = frontend
-        self.st_container = st_container
-        self._st_progress_bar = None
-        self._st_text = None
+        self.st_container: "DeltaGenerator" = st_container
+        self._st_progress_bar: Optional["DeltaGenerator"] = None
+        self._st_text: Optional["DeltaGenerator"] = None
 
         if ncols is None and not bar_format:
             ncols = 0  # rely on standard tqdm way to not display progress bar
@@ -60,8 +63,8 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         else:
             should_display_progress_bar = True
             should_display_text = True
-        self.should_display_progress_bar = should_display_progress_bar
-        self.should_display_text = should_display_text
+        self.should_display_progress_bar: bool = should_display_progress_bar
+        self.should_display_text: bool = should_display_text
 
         super().__init__(
             iterable=iterable,
@@ -93,18 +96,19 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         )
 
     @property
-    def st_progress_bar(self) -> st.progress:
+    def st_progress_bar(self) -> "DeltaGenerator":
         if self._st_progress_bar is None:
             self._st_progress_bar = self.st_container.empty()
         return self._st_progress_bar
 
     @property
-    def st_text(self) -> st.empty:
+    def st_text(self) -> "DeltaGenerator":
         if self._st_text is None:
             self._st_text = self.st_container.empty()
         return self._st_text
 
     def st_display(self, n: int, total: Optional[int], **kwargs) -> None:  # pylint: disable=invalid-name
+        """Display the progress bar and text in streamlit"""
         if self.should_display_text:
             meter_text = self.format_meter(n, total, **kwargs)
         else:
