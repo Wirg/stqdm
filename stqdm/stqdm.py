@@ -137,6 +137,9 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         return True
 
     def st_clear(self) -> None:
+        leave = self.pos == 0 if self.leave is None else self.leave
+        if leave:
+            return
         if self._st_text is not None:
             self._st_text.empty()
             self._st_text = None
