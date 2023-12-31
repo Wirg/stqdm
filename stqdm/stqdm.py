@@ -123,7 +123,7 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
             elif IS_TEXT_INSIDE_PROGRESS_AVAILABLE:
                 self.st_progress_bar.progress(n / total, text=meter_text)
             else:
-                self._st_text.write(meter_text)
+                self.st_text.write(meter_text)
                 self.st_progress_bar.progress(n / total)
         else:
             if can_display_text:
