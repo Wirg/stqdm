@@ -122,14 +122,14 @@ PYTHON_ST_TQDM_VERSIONS = (
 @nox.session
 @nox.parametrize(["python", "streamlit_version", "tqdm_version"], PYTHON_ST_TQDM_VERSIONS)
 def tests(session: nox.Session, streamlit_version: str, tqdm_version: str) -> None:
-    dependencies_to_install = build_dependencies_to_install_list(streamlit_version, tqdm_version, [".", "pytest"])
+    dependencies_to_install = build_dependencies_to_install_list(streamlit_version, tqdm_version, [".", "pytest", "freezegun"])
     install_deps(session, constraint_groups=["dev"], dependencies_to_install=dependencies_to_install)
     session.run("pytest")
 
 
 @nox_poetry.session(python=None)
 def coverage(session: nox_poetry.Session) -> None:
-    session.install("pytest", "pytest-cov", ".")
+    session.install("pytest", "pytest-cov", "freezegun", ".")
     session.run("pytest", "--cov-fail-under=15", "--cov=stqdm", "--cov-report=xml:codecov.xml")
 
 
@@ -147,5 +147,5 @@ def black(session: nox_poetry.Session) -> None:
 
 @nox_poetry.session(python=None)
 def lint(session: nox_poetry.Session) -> None:
-    session.install("pylint", "nox", "nox_poetry", "tqdm", "streamlit")
+    session.install("pylint", "nox", "nox_poetry", "tqdm", "streamlit", "pytest", "freezegun")
     session.run("pylint", "stqdm", "examples", "tests", "noxfile.py")
