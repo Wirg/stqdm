@@ -1,6 +1,9 @@
+from datetime import timedelta
 from typing import Optional
 from unittest.mock import patch
 
+import pytest
+from freezegun import freeze_time
 from tqdm import tqdm
 
 from stqdm.stqdm import IS_TEXT_INSIDE_PROGRESS_AVAILABLE, stqdm
@@ -9,6 +12,7 @@ TQDM_RUN_EVERY_ITERATION = {
     "mininterval": 0,
     "miniters": 0,
 }
+DESCRIPTION = "progress_bar_description"
 
 
 def test_works_out_of_streamlit():
@@ -65,3 +69,27 @@ def test_writes_tqdm_description_when_no_length_no_total(_):
             text=tqdm.format_meter(**{**stqdmed_iterator.format_dict, "ncols": 0}),
             progress=None,
         )
+
+
+@patch("streamlit.empty")
+@pytest.mark.parametrize(
+    "bar_format,get_text",
+    [
+        (None, lambda i, total: tqdm.format_meter(n=i, total=total, elapsed=i, ncols=0, prefix=DESCRIPTION)),
+        ("{bar}", lambda i, total: None),
+        (
+            "{bar}{desc}",
+            lambda i, total: tqdm.format_meter(n=i, total=total, elapsed=i, bar_format="{desc}", prefix=DESCRIPTION),
+        ),
+    ],
+)
+def test_bar_format(_, bar_format, get_text):
+    with freeze_time("2020-01-01") as frozen_time:
+        stqdmed_iterator = stqdm(range(2), bar_format=bar_format, **TQDM_RUN_EVERY_ITERATION, desc=DESCRIPTION)
+        for i, _ in enumerate(stqdmed_iterator):
+            frozen_time.tick(timedelta(seconds=1))
+            assert_frontend_as_been_called_with(
+                stqdmed_iterator,
+                text=get_text(i=i, total=2),
+                progress=i / len(stqdmed_iterator),
+            )

@@ -33,6 +33,7 @@ isort = "^5.12.0"
 pylint = "^2.17.5"
 nox = "^2023.4.22"
 nox-poetry = "^1.0.3"
+freezegun = "^1.4.0"
 
 [tool.black]
 line-length = 127
@@ -68,6 +69,7 @@ disable = [
 max-line-length=140
 docstring-min-length=15
 max-args = 6
+no-docstring-rgx = "^_|^test_|^Test[A-Z]" # no docstrings for tests
 
 [tool.pylint.miscellaneous]
 notes = ["FIXME"]
