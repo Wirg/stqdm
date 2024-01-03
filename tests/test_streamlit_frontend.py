@@ -125,3 +125,13 @@ def test_leave_true_remove_stqdm(_):
     mock_progress_bar.empty.assert_called_once()
     assert stqdmed_iterator._st_text is None
     mock_text.empty.assert_called_once()
+
+
+@patch("streamlit.empty")
+@patch.object(tqdm, "display")
+def test_use_tqdm_backend(display_mock, _):
+    # pylint: disable=protected-access
+    stqdmed_iterator = stqdm(range(2), backend=True, frontend=False, **TQDM_RUN_EVERY_ITERATION)
+    for _ in stqdmed_iterator:
+        pass
+    display_mock.assert_called()
