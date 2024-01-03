@@ -85,7 +85,7 @@ jobs:
       - uses: ./.github/workflows/actions/run_nox_session
         with:
           nox_session: ${{ matrix.session }}
-      - if: ${{ matrix.session == 'coverage'}}
+      - if: ${{ startsWith(matrix.session, 'coverage') }}
         uses: codecov/codecov-action@v3
         with:
           files: ./codecov.xml
