@@ -110,12 +110,12 @@ PYTHON_ST_TQDM_VERSIONS = (
     with_python_versions(["3.8", "3.9"], "~=0.66.0", "~=4.50.0")
     + with_python_versions(["3.8", "3.9"], "~=0.66.0", "~=4.50.0")
     + with_python_versions(["3.8", "3.9"], "~=1.4.0", "~=4.50.0")
-    + with_python_versions(["3.8", "3.9"], "~=1.4.0", "~=4.63.0")
-    + with_python_versions(["3.8", "3.9", "3.10"], "~=1.8.0", "~=4.63.0")
-    + with_python_versions(["3.8", "3.9", "3.10"], "~=1.12.0", "~=4.63.0")
+    + with_python_versions(["3.8", "3.9"], "~=1.4.0", "~=4.66.1")
+    + with_python_versions(["3.8", "3.9", "3.10"], "~=1.8.0", "~=4.66.1")
+    + with_python_versions(["3.8", "3.9", "3.10"], "~=1.12.0", "~=4.66.1")
     + with_python_versions(["3.9", "3.10"], "~=1.12.0", LATEST)
-    + with_python_versions(["3.10"], "~=1.22.0", LATEST)
-    + with_python_versions(["3.9", "3.10"], LATEST, LATEST)
+    + with_python_versions(["3.11"], "~=1.22.0", LATEST)
+    + with_python_versions(["3.9", "3.10", "3.11"], LATEST, LATEST)
 )
 
 
@@ -127,9 +127,11 @@ def tests(session: nox.Session, streamlit_version: str, tqdm_version: str) -> No
     session.run("pytest")
 
 
-@nox_poetry.session(python=None)
-def coverage(session: nox_poetry.Session) -> None:
-    session.install("pytest", "pytest-cov", "freezegun", ".")
+@nox.session(python=None)
+@nox.parametrize(["python", "streamlit_version", "tqdm_version"], [PYTHON_ST_TQDM_VERSIONS[0]] + [PYTHON_ST_TQDM_VERSIONS[-1]])
+def coverage(session: nox.Session, streamlit_version: str, tqdm_version: str) -> None:
+    dependencies_to_install = build_dependencies_to_install_list(streamlit_version, tqdm_version, [".", "pytest", "freezegun"])
+    install_deps(session, constraint_groups=["dev"], dependencies_to_install=dependencies_to_install)
     session.run("pytest", "--cov-fail-under=15", "--cov=stqdm", "--cov-report=xml:codecov.xml")
 
 
