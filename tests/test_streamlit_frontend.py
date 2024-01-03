@@ -127,11 +127,21 @@ def test_leave_true_remove_stqdm(_):
     mock_text.empty.assert_called_once()
 
 
+@pytest.mark.parametrize("frontend", [True, False])
+@pytest.mark.parametrize("backend", [True, False])
 @patch("streamlit.empty")
+@patch.object(stqdm, "st_display")
 @patch.object(tqdm, "display")
-def test_use_tqdm_backend(display_mock, _):
+def test_use_stqdm_frontent_backend(tqdm_display_mock, st_display_mock, _, backend, frontend):
     # pylint: disable=protected-access
-    stqdmed_iterator = stqdm(range(2), backend=True, frontend=False, **TQDM_RUN_EVERY_ITERATION)
+    stqdmed_iterator = stqdm(range(2), backend=backend, frontend=frontend, **TQDM_RUN_EVERY_ITERATION)
     for _ in stqdmed_iterator:
         pass
-    display_mock.assert_called()
+    if backend:
+        tqdm_display_mock.assert_called()
+    else:
+        tqdm_display_mock.assert_not_called()
+    if frontend:
+        st_display_mock.assert_called()
+    else:
+        st_display_mock.assert_not_called()
