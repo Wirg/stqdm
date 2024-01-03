@@ -5,6 +5,7 @@ import streamlit as st
 from packaging import version
 from tqdm.auto import tqdm
 
+# pragma: no cover
 if TYPE_CHECKING:
     from streamlit.delta_generator import DeltaGenerator
 
