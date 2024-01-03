@@ -130,7 +130,9 @@ def tests(session: nox.Session, streamlit_version: str, tqdm_version: str) -> No
 @nox.session(python=None)
 @nox.parametrize(["python", "streamlit_version", "tqdm_version"], [PYTHON_ST_TQDM_VERSIONS[0]] + [PYTHON_ST_TQDM_VERSIONS[-1]])
 def coverage(session: nox.Session, streamlit_version: str, tqdm_version: str) -> None:
-    dependencies_to_install = build_dependencies_to_install_list(streamlit_version, tqdm_version, [".", "pytest", "freezegun"])
+    dependencies_to_install = build_dependencies_to_install_list(
+        streamlit_version, tqdm_version, [".", "pytest", "pytest-cov", "freezegun"]
+    )
     install_deps(session, constraint_groups=["dev"], dependencies_to_install=dependencies_to_install)
     session.run("pytest", "--cov-fail-under=15", "--cov=stqdm", "--cov-report=xml:codecov.xml")
 
