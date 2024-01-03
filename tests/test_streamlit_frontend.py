@@ -1,6 +1,6 @@
 from datetime import timedelta
 from typing import Optional
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from freezegun import freeze_time
@@ -93,3 +93,35 @@ def test_bar_format(_, bar_format, get_text):
                 text=get_text(i=i, total=2),
                 progress=i / len(stqdmed_iterator),
             )
+
+
+@patch("streamlit.empty")
+def test_leave_false_keeps_stqdm(_):
+    # pylint: disable=protected-access
+    stqdmed_iterator = stqdm(range(2), leave=True)
+    mock_progress_bar = MagicMock()
+    mock_text = MagicMock()
+    stqdmed_iterator._st_progress_bar = mock_progress_bar
+    stqdmed_iterator._st_text = mock_text
+    for _ in stqdmed_iterator:
+        pass
+    assert stqdmed_iterator._st_progress_bar is mock_progress_bar
+    mock_progress_bar.empty.assert_not_called()
+    assert stqdmed_iterator._st_text is mock_text
+    mock_text.empty.assert_not_called()
+
+
+@patch("streamlit.empty")
+def test_leave_true_remove_stqdm(_):
+    # pylint: disable=protected-access
+    stqdmed_iterator = stqdm(range(2), leave=False)
+    mock_progress_bar = MagicMock()
+    mock_text = MagicMock()
+    stqdmed_iterator._st_progress_bar = mock_progress_bar
+    stqdmed_iterator._st_text = mock_text
+    for _ in stqdmed_iterator:
+        pass
+    assert stqdmed_iterator._st_progress_bar is None
+    mock_progress_bar.empty.assert_called_once()
+    assert stqdmed_iterator._st_text is None
+    mock_text.empty.assert_called_once()
