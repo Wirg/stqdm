@@ -1,6 +1,6 @@
 from abc import ABCMeta
 from contextlib import contextmanager
-from typing import Any, Generic, Iterator, Mapping, Optional, TypeVar, cast
+from typing import Any, Generic, Iterator, List, Mapping, Optional, TypeVar, cast
 
 
 class ScopeError(RuntimeError):
@@ -11,10 +11,10 @@ ScopeConfig = TypeVar("ScopeConfig", bound=Mapping[str, Any])
 
 
 class ScopeManager(Generic[ScopeConfig], metaclass=ABCMeta):  # pylint: disable=invalid-name,inconsistent-mro
-    def __init__(self, stack: Optional[list[ScopeConfig]] = None) -> None:
+    def __init__(self, stack: Optional[List[ScopeConfig]] = None) -> None:
         if stack is None:
             stack = []
-        self._scope_stack: list[ScopeConfig] = stack
+        self._scope_stack: List[ScopeConfig] = stack
 
     def set_default_kwargs(self, scope_config: ScopeConfig) -> None:
         if not self._scope_stack:
