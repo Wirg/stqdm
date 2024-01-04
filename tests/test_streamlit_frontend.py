@@ -15,6 +15,18 @@ TQDM_RUN_EVERY_ITERATION = {
 DESCRIPTION = "progress_bar_description"
 
 
+@pytest.fixture(autouse=True)
+def mock_st_empty():
+    with patch("streamlit.empty") as st_empty:
+        yield st_empty
+
+
+@pytest.fixture(autouse=True)
+def mock_st_container():
+    with patch("streamlit.container") as st_container:
+        yield st_container
+
+
 def test_works_out_of_streamlit():
     for _ in stqdm(range(2)):
         pass
@@ -37,8 +49,7 @@ def assert_frontend_as_been_called_with(stqdmed_iterator: stqdm, text: Optional[
         stqdmed_iterator.st_progress_bar.progress.assert_called_with(progress)
 
 
-@patch("streamlit.empty")
-def test_writes_tqdm_description(_):
+def test_writes_tqdm_description():
     stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)
     for i, _ in enumerate(stqdmed_iterator):
         assert_frontend_as_been_called_with(
@@ -48,8 +59,7 @@ def test_writes_tqdm_description(_):
         )
 
 
-@patch("streamlit.empty")
-def test_writes_tqdm_description_when_no_length_but_total(_):
+def test_writes_tqdm_description_when_no_length_but_total():
     stqdmed_iterator = stqdm((i for i in range(2)), total=3, **TQDM_RUN_EVERY_ITERATION)
     for i, _ in enumerate(stqdmed_iterator):
         assert_frontend_as_been_called_with(
@@ -59,8 +69,7 @@ def test_writes_tqdm_description_when_no_length_but_total(_):
         )
 
 
-@patch("streamlit.empty")
-def test_writes_tqdm_description_when_no_length_no_total(_):
+def test_writes_tqdm_description_when_no_length_no_total():
     stqdmed_iterator = stqdm((i for i in range(2)), **TQDM_RUN_EVERY_ITERATION)
 
     for _ in stqdmed_iterator:
@@ -71,7 +80,6 @@ def test_writes_tqdm_description_when_no_length_no_total(_):
         )
 
 
-@patch("streamlit.empty")
 @pytest.mark.parametrize(
     "bar_format,get_text",
     [
@@ -83,7 +91,7 @@ def test_writes_tqdm_description_when_no_length_no_total(_):
         ),
     ],
 )
-def test_bar_format(_, bar_format, get_text):
+def test_bar_format(bar_format, get_text):
     with freeze_time("2020-01-01") as frozen_time:
         stqdmed_iterator = stqdm(range(2), bar_format=bar_format, **TQDM_RUN_EVERY_ITERATION, desc=DESCRIPTION)
         for i, _ in enumerate(stqdmed_iterator):
@@ -95,8 +103,7 @@ def test_bar_format(_, bar_format, get_text):
             )
 
 
-@patch("streamlit.empty")
-def test_leave_false_keeps_stqdm(_):
+def test_leave_false_keeps_stqdm():
     # pylint: disable=protected-access
     stqdmed_iterator = stqdm(range(2), leave=True)
     mock_progress_bar = MagicMock()
@@ -111,8 +118,7 @@ def test_leave_false_keeps_stqdm(_):
     mock_text.empty.assert_not_called()
 
 
-@patch("streamlit.empty")
-def test_leave_true_remove_stqdm(_):
+def test_leave_true_remove_stqdm():
     # pylint: disable=protected-access
     stqdmed_iterator = stqdm(range(2), leave=False)
     mock_progress_bar = MagicMock()
@@ -129,10 +135,9 @@ def test_leave_true_remove_stqdm(_):
 
 @pytest.mark.parametrize("frontend", [True, False])
 @pytest.mark.parametrize("backend", [True, False])
-@patch("streamlit.empty")
 @patch.object(stqdm, "st_display")
 @patch.object(tqdm, "display")
-def test_use_stqdm_frontent_backend(tqdm_display_mock, st_display_mock, _, backend, frontend):
+def test_use_stqdm_frontent_backend(tqdm_display_mock, st_display_mock, backend, frontend):
     # pylint: disable=protected-access
     stqdmed_iterator = stqdm(range(2), backend=backend, frontend=frontend, **TQDM_RUN_EVERY_ITERATION)
     for _ in stqdmed_iterator:
