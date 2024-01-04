@@ -47,7 +47,7 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         **kwargs,
     ):  # pylint: disable=too-many-arguments,too-many-locals
         if st_container is None:
-            st_container = st
+            st_container = st.container()
         self._backend = backend
         self._frontend = frontend
         self.st_container: "DeltaGenerator" = st_container
