@@ -21,7 +21,7 @@ classifiers = [
 # Drop 3.9.7 https://github.com/streamlit/streamlit/issues/5140#issuecomment-1213574499
 python = ">=3.8,<4.0.0,!=3.9.7"
 tqdm = ">=4.50"
-streamlit = ">=0.66"
+streamlit = ">=0.86"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.3.3"
