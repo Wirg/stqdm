@@ -1,5 +1,5 @@
 import re
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, cast
 
 import streamlit as st
 from packaging import version
@@ -108,10 +108,11 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
             self._st_text = self.st_container.empty()
         return self._st_text
 
-    def st_display(self, n: int, total: Optional[int], **kwargs) -> None:  # pylint: disable=invalid-name
+    def st_display(self, n: float, total: Optional[float], **kwargs) -> None:  # pylint: disable=invalid-name
         """Display the progress bar and text in streamlit"""
         if self.should_display_text:
-            meter_text = self.format_meter(n, total, **kwargs)
+            # cast to float because of issue with tqdm stubs typing
+            meter_text = self.format_meter(n, cast(float, total), **kwargs)
         else:
             meter_text = None
 
@@ -119,6 +120,7 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         can_display_progress_bar = total is not None and total > 0
 
         if can_display_progress_bar and self.should_display_progress_bar:
+            total = cast(float, total)  # total is not None
             if not can_display_text:
                 self.st_progress_bar.progress(n / total)
             elif IS_TEXT_INSIDE_PROGRESS_AVAILABLE:
@@ -130,7 +132,9 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
             if can_display_text:
                 self.st_text.write(meter_text)
 
-    def display(self, msg=None, pos=None) -> bool:
+    def display(self, msg=None, pos=None) -> bool:  # type: ignore[override]
+        # TODO: for a weird reason, display is type -> None in the stubs but it is not in the code
+        # TODO: check if we should return True or something related to what happend in backend
         if self._backend:
             super().display(msg, pos)
         if self._frontend:
