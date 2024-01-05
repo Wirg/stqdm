@@ -1,4 +1,6 @@
-from stqdm.configuration_manager import ScopeManager
+import pytest
+
+from stqdm.configuration_manager import ScopeError, ScopeManager
 
 
 def test_scope_manager__get_current_defaults():
@@ -33,3 +35,11 @@ def test_scope_manager__scope():
             assert scope_manager.get_current_defaults() == {"foo": "baz"}
         assert scope_manager.get_current_defaults() == {"foo": "bar"}
     assert scope_manager.get_current_defaults() == {}
+
+
+def test_configuration_manager__raise_for_access_to_non_existing_default():
+    scope_manager = ScopeManager()
+    with pytest.raises(ScopeError):
+        scope_manager.get_current_defaults()
+    with pytest.raises(ScopeError):
+        scope_manager.use_current_default_if_config_not_provided({})
