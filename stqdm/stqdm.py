@@ -1,9 +1,14 @@
 import re
-from typing import TYPE_CHECKING, Optional, cast
+from contextlib import contextmanager
+from typing import TYPE_CHECKING, Iterable, Iterator, Optional, cast
 
 import streamlit as st
 from packaging import version
 from tqdm.auto import tqdm
+from typing_extensions import Unpack
+
+from stqdm.configuration_manager import ScopeManager
+from stqdm.types import STQDMArgs
 
 # pragma: no cover
 if TYPE_CHECKING:
@@ -16,45 +21,24 @@ BAR_FORMAT_REGEX = re.compile(r"\{bar(?:[:!][a-zA-Z0-9]+){,2}}")
 class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
     def __init__(
         self,
-        iterable=None,
-        desc=None,
-        total=None,
-        leave=True,
-        file=None,
-        ncols=None,
-        mininterval=0.1,
-        maxinterval=10.0,
-        miniters=None,
-        ascii=None,  # pylint: disable=redefined-builtin
-        disable=False,
-        unit="it",
-        unit_scale=False,
-        dynamic_ncols=False,
-        smoothing=0.3,
-        bar_format=None,
-        initial=0,
-        position=None,
-        postfix=None,
-        unit_divisor=1000,
-        write_bytes=None,
-        lock_args=None,
-        nrows=None,
-        colour=None,
-        gui=False,
-        st_container: Optional["DeltaGenerator"] = None,
-        backend: bool = False,
-        frontend: bool = True,
-        **kwargs,
-    ):  # pylint: disable=too-many-arguments,too-many-locals
-        if st_container is None:
-            st_container = st.container()
-        self._backend = backend
-        self._frontend = frontend
-        self.st_container: "DeltaGenerator" = st_container
+        iterable: Optional[Iterable] = None,
+        **kwargs: Unpack[STQDMArgs],
+    ) -> None:  # pylint: disable=too-many-arguments,too-many-locals
+        kwargs = self.combine_default_and_provided_kwargs(provided_config=kwargs)
+
+        self.st_container: "DeltaGenerator" = kwargs.pop("st_container", st.container())
+        self._backend: bool = kwargs.pop("backend", False)
+        self._frontend: bool = kwargs.pop("frontend", True)
+
+        # Will be set when necessary
         self._st_progress_bar: Optional["DeltaGenerator"] = None
         self._st_text: Optional["DeltaGenerator"] = None
 
-        if ncols is None and not bar_format:
+        # Handle the way we will display the progress bar
+        # TODO: /!\ we are modifying both argument for backend and frontend
+        ncols: Optional[int] = kwargs.get("ncols")
+        bar_format: Optional[str] = kwargs.get("bar_format")
+        if ncols is None and bar_format is None:
             ncols = 0  # rely on standard tqdm way to not display progress bar
         if bar_format:
             original_bar_format = bar_format
@@ -67,35 +51,36 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         self.should_display_progress_bar: bool = should_display_progress_bar
         self.should_display_text: bool = should_display_text
 
+        kwargs["ncols"] = ncols
+        kwargs["bar_format"] = bar_format
+
         super().__init__(
             iterable=iterable,
-            desc=desc,
-            total=total,
-            leave=leave,
-            file=file,
-            ncols=ncols,
-            mininterval=mininterval,
-            maxinterval=maxinterval,
-            miniters=miniters,
-            ascii=ascii,
-            disable=disable,
-            unit=unit,
-            unit_scale=unit_scale,
-            dynamic_ncols=dynamic_ncols,
-            smoothing=smoothing,
-            bar_format=bar_format,
-            initial=initial,
-            position=position,
-            postfix=postfix,
-            unit_divisor=unit_divisor,
-            write_bytes=write_bytes,
-            lock_args=lock_args,
-            nrows=nrows,
-            colour=colour,
-            gui=gui,
             **kwargs,
         )
 
+    scope_stack: ScopeManager[STQDMArgs] = ScopeManager(STQDMArgs())
+
+    @classmethod
+    def set_default_config(cls, /, **config: Unpack[STQDMArgs]) -> None:
+        cls.scope_stack.default_config = config
+
+    @classmethod
+    @contextmanager
+    def scope(cls, /, **config: Unpack[STQDMArgs]) -> Iterator[STQDMArgs]:
+        with cls.scope_stack.scope(config) as scope:
+            yield scope
+
+    @classmethod
+    def combine_default_and_provided_kwargs(cls, provided_config: STQDMArgs) -> STQDMArgs:
+        """This function combine default of scope stack and provided kwargs.
+
+        By default, we use kwargs from the current scope unless they are provided.
+        If you want to change this behavior, modify this function.
+        """
+        return cls.scope_stack.use_current_default_if_config_not_provided(config=provided_config)
+
+    # Internal Functions
     @property
     def st_progress_bar(self) -> "DeltaGenerator":
         if self._st_progress_bar is None:
