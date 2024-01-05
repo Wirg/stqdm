@@ -107,14 +107,11 @@ def install_deps(session: nox.Session, constraint_groups: List[str], dependencie
 
 
 PYTHON_ST_TQDM_VERSIONS = (
-    with_python_versions(["3.8", "3.9"], "~=0.86.0", "~=4.50.0")
-    + with_python_versions(["3.8", "3.9"], "~=0.86.0", "~=4.50.0")
-    + with_python_versions(["3.8", "3.9"], "~=1.4.0", "~=4.50.0")
-    + with_python_versions(["3.8", "3.9"], "~=1.4.0", "~=4.66.1")
-    + with_python_versions(["3.8", "3.9", "3.10"], "~=1.8.0", "~=4.66.1")
+    with_python_versions(["3.8", "3.9"], "~=1.11.0", "~=4.50.0")
+    + with_python_versions(["3.8", "3.9"], "~=1.11.0", "~=4.66.1")
     + with_python_versions(["3.8", "3.9", "3.10"], "~=1.12.0", "~=4.66.1")
-    + with_python_versions(["3.9", "3.10"], "~=1.12.0", LATEST)
-    + with_python_versions(["3.11"], "~=1.22.0", LATEST)
+    + with_python_versions(["3.9", "3.10"], "~=1.20.0", LATEST)
+    + with_python_versions(["3.11"], "~=1.29.0", LATEST)
     + with_python_versions(["3.9", "3.10", "3.11"], LATEST, LATEST)
 )
 
