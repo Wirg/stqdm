@@ -43,3 +43,9 @@ def test_configuration_manager__raise_for_access_to_non_existing_default():
         scope_manager.get_current_defaults()
     with pytest.raises(ScopeError):
         scope_manager.use_current_default_if_config_not_provided({})
+
+
+def test_configuration_manager__can_set_default_when_empty_stack():
+    scope_manager = ScopeManager()
+    scope_manager.set_default_kwargs({"foo": "bar"})
+    assert scope_manager.get_current_defaults() == {"foo": "bar"}
