@@ -53,11 +53,11 @@ jobs:
           add-paths: "./pyproject.toml"
 
           # Auth
-          token: ${{ secrets.STQDM_MACHINE_TOKEN }}
+          token: ${{ secrets.GH_WIRG_BOT_PAT }}
 
       - name: Auto-merge Pull Request
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
-          token: ${{ secrets.STQDM_MACHINE_TOKEN }}
+          token: ${{ secrets.GH_WIRG_BOT_PAT }}
           pull-request-number: ${{ steps.create-pull-request.outputs.pull-request-number }}
           merge-method: rebase
