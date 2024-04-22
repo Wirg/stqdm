@@ -15,16 +15,24 @@ TQDM_RUN_EVERY_ITERATION = {
 DESCRIPTION = "progress_bar_description"
 
 
-@pytest.fixture(autouse=True)
-def mock_st_empty():
+@pytest.fixture(autouse=True, name="mock_st_empty")
+def fixture_mock_st_empty():
     with patch("streamlit.empty") as st_empty:
         yield st_empty
 
 
-@pytest.fixture(autouse=True)
-def mock_st_container():
+@pytest.fixture(autouse=True, name="mock_st_container")
+def fixture_mock_st_container():
     with patch("streamlit.container") as st_container:
         yield st_container
+
+
+@pytest.fixture(autouse=True)
+def reset_default_stqdm_config_at_the_end_of_test():
+    """Reset the default config at the end of the test, to avoid tests to have side effects."""
+    initial_config = stqdm.scope_stack.get_default_config()
+    yield initial_config
+    stqdm.scope_stack.set_default_config(initial_config)
 
 
 def test_works_out_of_streamlit():
@@ -33,9 +41,16 @@ def test_works_out_of_streamlit():
 
 
 def assert_frontend_as_been_called_with(stqdmed_iterator: stqdm, text: Optional[str], progress: Optional[float]):
+    """Util to test if the frontend of streamlit would have been called and in the proper condition.
+
+    This simplify the handling of edge cases:
+    - the new feature of text inside the progress bar (IS_TEXT_INSIDE_PROGRESS_AVAILABLE)
+    - text & progress or only one of the two
+    """
     if text is None and progress is None:
-        raise ValueError("Nothing to assert.")
-    if progress is None:
+        stqdmed_iterator.st_text.write.assert_not_called()
+        stqdmed_iterator.st_progress_bar.progress.assert_not_called()
+    elif progress is None:
         stqdmed_iterator.st_text.write.assert_called_with(text)
         stqdmed_iterator.st_progress_bar.progress.assert_not_called()
     elif text is None:
@@ -49,7 +64,7 @@ def assert_frontend_as_been_called_with(stqdmed_iterator: stqdm, text: Optional[
         stqdmed_iterator.st_progress_bar.progress.assert_called_with(progress)
 
 
-def test_writes_tqdm_description():
+def test_default_stqdm():
     stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)
     for i, _ in enumerate(stqdmed_iterator):
         assert_frontend_as_been_called_with(
@@ -137,7 +152,7 @@ def test_leave_true_remove_stqdm():
 @pytest.mark.parametrize("backend", [True, False])
 @patch.object(stqdm, "st_display")
 @patch.object(tqdm, "display")
-def test_use_stqdm_frontent_backend(tqdm_display_mock, st_display_mock, backend, frontend):
+def test_use_stqdm_frontend_backend(tqdm_display_mock, st_display_mock, backend, frontend):
     # pylint: disable=protected-access
     stqdmed_iterator = stqdm(range(2), backend=backend, frontend=frontend, **TQDM_RUN_EVERY_ITERATION)
     for _ in stqdmed_iterator:
@@ -150,3 +165,58 @@ def test_use_stqdm_frontent_backend(tqdm_display_mock, st_display_mock, backend,
         st_display_mock.assert_called()
     else:
         st_display_mock.assert_not_called()
+
+
+def test_stqdm_change_default_config(mock_st_empty, mock_st_container):
+    test_default_stqdm()
+    mock_st_empty.reset_mock()
+    mock_st_container.reset_mock()
+    stqdm.set_default_config(frontend=False)
+    stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)
+    for _ in enumerate(stqdmed_iterator):
+        assert_frontend_as_been_called_with(
+            stqdmed_iterator,
+            text=None,
+            progress=None,
+        )
+    mock_st_empty.reset_mock()
+    mock_st_container.reset_mock()
+    stqdm.set_default_config(bar_format="{desc}", desc="hello")
+    stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)
+    for _ in enumerate(stqdmed_iterator):
+        assert_frontend_as_been_called_with(
+            stqdmed_iterator,
+            text="hello",
+            progress=None,
+        )
+
+
+def test_stqdm_test_scope():
+    with stqdm.scope(frontend=False):
+        stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)
+        for _ in enumerate(stqdmed_iterator):
+            assert_frontend_as_been_called_with(
+                stqdmed_iterator,
+                text=None,
+                progress=None,
+            )
+    with stqdm.scope(bar_format="{desc}", desc="hello"):
+        stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)
+        for _ in enumerate(stqdmed_iterator):
+            assert_frontend_as_been_called_with(
+                stqdmed_iterator,
+                text="hello",
+                progress=None,
+            )
+    test_default_stqdm()
+
+
+def test_stqdm_default_config_add_description():
+    stqdm.set_default_config(desc="hello")
+    stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)
+    for i, _ in enumerate(stqdmed_iterator):
+        assert_frontend_as_been_called_with(
+            stqdmed_iterator,
+            text=tqdm.format_meter(**{**stqdmed_iterator.format_dict, "ncols": 0, "desc": "hello"}),
+            progress=i / len(stqdmed_iterator),
+        )
