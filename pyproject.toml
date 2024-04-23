@@ -36,6 +36,9 @@ nox-poetry = "^1.0.3"
 freezegun = "^1.4.0"
 mypy = "^1.8.0"
 types-tqdm = "^4.66.0.5"
+# Requirement added for compatibility between dev deps & some dependencies
+# during the nox testing: streamlit_version='~=1.29.0'
+packaging = "<24"
 
 [tool.black]
 line-length = 127
