@@ -191,7 +191,7 @@ def test_stqdm_change_default_config(mock_st_empty, mock_st_container):
         )
 
 
-def test_stqdm_test_scope():
+def test_stqdm_test_scope(mock_st_container, mock_st_empty):
     with stqdm.scope(frontend=False):
         stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)
         for _ in enumerate(stqdmed_iterator):
@@ -200,6 +200,8 @@ def test_stqdm_test_scope():
                 text=None,
                 progress=None,
             )
+    mock_st_container.reset_mock()
+    mock_st_empty.reset_mock()
     with stqdm.scope(bar_format="{desc}", desc="hello"):
         stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)
         for _ in enumerate(stqdmed_iterator):
@@ -208,15 +210,17 @@ def test_stqdm_test_scope():
                 text="hello",
                 progress=None,
             )
+    mock_st_container.reset_mock()
+    mock_st_empty.reset_mock()
     test_default_stqdm()
 
 
 def test_stqdm_default_config_add_description():
-    stqdm.set_default_config(desc="hello")
+    stqdm.set_default_config(bar_format="{desc}", desc="hello")
     stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)
-    for i, _ in enumerate(stqdmed_iterator):
+    for _ in enumerate(stqdmed_iterator):
         assert_frontend_as_been_called_with(
             stqdmed_iterator,
-            text=tqdm.format_meter(**{**stqdmed_iterator.format_dict, "ncols": 0, "desc": "hello"}),
-            progress=i / len(stqdmed_iterator),
+            text="hello",
+            progress=None,
         )
