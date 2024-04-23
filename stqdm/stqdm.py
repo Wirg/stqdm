@@ -138,6 +138,9 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
             self._st_progress_bar = None
 
     def close(self) -> None:
+        if self.disable:
+            # TQDM internal to avoid multiple closing
+            return
         super().close()
         self.st_clear()
 
