@@ -17,7 +17,7 @@ jobs:
   list_nox_sessions_groups:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Cache sessions results
         id: sessions-cache
         uses: actions/cache@v3
@@ -56,7 +56,7 @@ jobs:
     name: Run tests session ${{ matrix.session }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/workflows/actions/install_dependencies
         with:
           python_version: |
@@ -76,7 +76,7 @@ jobs:
     name: Run format session ${{ matrix.session }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/workflows/actions/install_dependencies
         with:
           python_version: |
