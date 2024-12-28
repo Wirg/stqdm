@@ -18,31 +18,29 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-# Drop 3.9.7 https://github.com/streamlit/streamlit/issues/5140#issuecomment-1213574499
-python = ">=3.8,<4.0.0,!=3.9.7"
-tqdm = ">=4.50"
-streamlit = ">=1.11"
+python = ">=3.10,<4.0"
+tqdm = ">=4.61"
+streamlit = ">=1.29.0"
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^3.3.3"
-pytest = "^7.4.0"
-pytest-cov = "^4.1.0"
-black = "^23.7.0"
-click = ">=8.1" # Force for black compatibility
-isort = "^5.12.0"
-pylint = "^2.17.5"
+pre-commit = "^4.0.1"
+pytest = "^8.3.4"
+pytest-cov = "^6.0.0"
+black = "^24.10.0"
+isort = "^5.13.2"
+pylint = "^3.3.3"
 nox = "^2023.4.22"
 nox-poetry = "^1.0.3"
-freezegun = "^1.4.0"
-mypy = "^1.8.0"
+freezegun = "^1.5.1"
+mypy = "^1.14.0"
 types-tqdm = "^4.66.0.5"
 # Requirement added for compatibility between dev deps & some dependencies
 # during the nox testing: streamlit_version='~=1.29.0'
-packaging = "<24"
+packaging = ">=1.16,<24"
 
 [tool.black]
 line-length = 127
-target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
+target-version = ['py310', 'py311']
 
 [tool.isort]
 py_version=39

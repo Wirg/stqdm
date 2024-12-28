@@ -13,6 +13,7 @@ stqdm.set_lock(RLock())
 
 See : https://github.com/Wirg/stqdm/issues/64#issuecomment-1367536561
 """
+
 from time import sleep
 
 import streamlit as st

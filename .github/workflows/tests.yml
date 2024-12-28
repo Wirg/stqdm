@@ -61,7 +61,7 @@ jobs:
         with:
           python_version: |
             ${{ matrix.python }}
-            3.9
+            3.12
       - uses: ./.github/workflows/actions/run_nox_session
         with:
           nox_session: ${{ matrix.session }}
@@ -81,7 +81,7 @@ jobs:
         with:
           python_version: |
             ${{ matrix.python }}
-            3.9
+            3.12
       - uses: ./.github/workflows/actions/run_nox_session
         with:
           nox_session: ${{ matrix.session }}
