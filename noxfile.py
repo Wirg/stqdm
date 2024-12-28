@@ -32,10 +32,6 @@ def fix_deps_issues(streamlit_version: str) -> List[str]:
     Fix issues with streamlit and stqdm deps to ease ci
     """
     install_fixes: List[str] = []
-    # Used to avoid a compatibility issue between streamlit and protobuf
-    # https://discuss.streamlit.io/t/streamlit-run-with-protobuf-error/25632/5
-    if is_version_below((1, 12), streamlit_version):
-        install_fixes += ["protobuf<3.20"]
 
     # https://discuss.streamlit.io/t/modulenotfounderror-no-module-named-altair-vegalite-v4/42921/13
     altair_lower_than_5 = "altair<5"
@@ -107,12 +103,15 @@ def install_deps(session: nox.Session, constraint_groups: List[str], dependencie
 
 
 PYTHON_ST_TQDM_VERSIONS = (
-    with_python_versions(["3.8", "3.9"], "~=1.11.0", "~=4.50.0")
-    + with_python_versions(["3.8", "3.9"], "~=1.11.0", "~=4.66.1")
-    + with_python_versions(["3.8", "3.9", "3.10"], "~=1.12.0", "~=4.66.1")
-    + with_python_versions(["3.9", "3.10"], "~=1.20.0", LATEST)
-    + with_python_versions(["3.11"], "~=1.29.0", LATEST)
-    + with_python_versions(["3.9", "3.10", "3.11"], LATEST, LATEST)
+    # python = ">=3.10,<4.0" # current 3.13.1
+    # tqdm = ">=4.61" # current 4.67.1
+    # streamlit = ">=1.29.0" # current # 1.41.1
+    with_python_versions(["3.10", "3.11"], "~=1.29.0", "~=4.61")
+    + with_python_versions(["3.10", "3.11"], "~=1.29.0", "~=4.66.1")
+    + with_python_versions(["3.10", "3.11", "3.12"], "~=1.29.0", "~=4.66.1")
+    + with_python_versions(["3.10", "3.11"], "~=1.29.0", LATEST)
+    + with_python_versions(["3.11"], "~=1.41.1", LATEST)
+    + with_python_versions(["3.10", "3.11", "3.12"], LATEST, LATEST)
 )
 
 

@@ -6,7 +6,6 @@ See : https://docs.streamlit.io/library/advanced-features/caching
 From : https://discuss.streamlit.io/t/stqdm-a-tqdm-like-progress-bar-for-streamlit/10097/20?u=wirg
 """
 
-
 from time import sleep
 from typing import List
 

@@ -1,4 +1,4 @@
-default_stages: [ commit ]
+default_stages: [ pre-commit ]
 repos:
   -   repo: https://github.com/pre-commit/pre-commit-hooks
       rev: v4.2.0
@@ -15,23 +15,23 @@ repos:
         entry: poetry run black
         language: system
         types: [ python ]
-        stages: [ commit ]
+        stages: [ pre-commit ]
       - id: lint
         name: Linter (pylint)
         entry: poetry run pylint
         language: system
         types: [ python ]
-        stages: [ commit ]
+        stages: [ pre-commit ]
       - id: isort
         name: Ordering imports (isort)
         entry: poetry run isort
         language: system
         types: [ python ]
-        stages: [ commit ]
+        stages: [ pre-commit ]
       - id: test
         name: Unit tests (pytest)
         entry: poetry run pytest
         pass_filenames: false
         language: system
         types: [ python ]
-        stages: [ push ]
+        stages: [ pre-push ]
