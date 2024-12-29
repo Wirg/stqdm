@@ -25,6 +25,8 @@ runs:
         virtualenvs-create: true
         virtualenvs-in-project: false
         installer-parallel: true
+        plugins: |
+          poetry-plugin-export
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python_version }}
