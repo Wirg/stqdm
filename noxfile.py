@@ -1,12 +1,29 @@
 import hashlib
+import string
 from pathlib import Path
 from typing import List
 
 import nox
 import nox_poetry
 from nox_poetry.poetry import CommandSkippedError
+from packaging.version import Version
 
-from commands.utils import LATEST, is_version_below
+LATEST = "@latest"
+
+
+def is_version_below(target: tuple[int, int], version: str) -> bool:
+    if version == LATEST:
+        return False
+    # We suppose version format to be ~=version, ==version, >version, ...
+    if version[0] in string.digits:
+        pass
+    elif version[1] in string.digits:
+        version = version[1:]
+    else:
+        version = version[2:]
+
+    version = Version(version)
+    return version < Version(f"{target[0]}.{target[1]}")
 
 
 def with_python_versions(python_versions: List[str], st_version: str, tqdm_version: str):
