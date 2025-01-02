@@ -11,6 +11,8 @@ from streamlit.testing.v1.element_tree import Block, Element
 import demo.src.utils
 from demo.src.demo_apps import simple_stqdm_in_main
 
+pytestmark = pytest.mark.demo_app
+
 
 def collect_block_elements(block: Block, should_take: Callable[[Element], bool]) -> list[Element]:
     children = block.children.values()

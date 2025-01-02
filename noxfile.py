@@ -1,5 +1,4 @@
 import hashlib
-import string
 from pathlib import Path
 from typing import List
 
@@ -7,24 +6,11 @@ import nox
 import nox_poetry
 from nox_poetry.poetry import CommandSkippedError
 
-LATEST = "@latest"
+from commands.utils import LATEST, is_version_below
 
 
 def with_python_versions(python_versions: List[str], st_version: str, tqdm_version: str):
     return [(python_version, st_version, tqdm_version) for python_version in python_versions]
-
-
-def is_version_below(target: tuple[int, int], version: str) -> bool:
-    if version == LATEST:
-        return True
-    # We suppose version format to be ~=version, ==version, >version, ...
-    if version[1] in string.digits:
-        version = version[1:]
-    else:
-        version = version[2:]
-
-    st_major, st_minor = version.split(".", maxsplit=2)[:2]
-    return (int(st_major), int(st_minor)) < target
 
 
 def fix_deps_issues(streamlit_version: str) -> List[str]:
@@ -120,7 +106,15 @@ PYTHON_ST_TQDM_VERSIONS = (
 def tests(session: nox.Session, streamlit_version: str, tqdm_version: str) -> None:
     dependencies_to_install = build_dependencies_to_install_list(streamlit_version, tqdm_version, [".", "pytest", "freezegun"])
     install_deps(session, constraint_groups=["dev"], dependencies_to_install=dependencies_to_install)
-    session.run("pytest")
+    session.run("pytest", "-m", "not demo_app")
+
+
+@nox.session(python=None)
+@nox.parametrize(["python", "streamlit_version", "tqdm_version"], [PYTHON_ST_TQDM_VERSIONS[-1]])
+def test_demo_app(session: nox.Session, streamlit_version: str, tqdm_version: str) -> None:
+    dependencies_to_install = build_dependencies_to_install_list(streamlit_version, tqdm_version, [".", "pytest", "freezegun"])
+    install_deps(session, constraint_groups=["dev"], dependencies_to_install=dependencies_to_install)
+    session.run("pytest", "-m", "demo_app")
 
 
 @nox.session(python=None)
@@ -130,10 +124,11 @@ def coverage(session: nox.Session, streamlit_version: str, tqdm_version: str) ->
         streamlit_version, tqdm_version, [".", "pytest", "pytest-cov", "freezegun"]
     )
     install_deps(session, constraint_groups=["dev"], dependencies_to_install=dependencies_to_install)
-    session.run("pytest", "--cov-fail-under=15", "--cov=stqdm", "--cov-report=xml:codecov.xml")
+    session.run("pytest", "--cov-fail-under=15", "--cov=stqdm", "--cov-report=xml:codecov.xml", "-m", "not demo_app")
 
 
-@nox_poetry.session(python=None)
+@nox.session(python=None)
+@nox.parametrize(["python", "streamlit_version", "tqdm_version"], [PYTHON_ST_TQDM_VERSIONS[0]] + [PYTHON_ST_TQDM_VERSIONS[-1]])
 def isort(session: nox_poetry.Session):
     session.install("isort")
     session.run("isort", ".", "--check")
