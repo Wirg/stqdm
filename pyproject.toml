@@ -52,7 +52,7 @@ skip_gitignore = true
 addopts = "-ra"
 testpaths = ["tests"]
 markers = [
-    "app_test:Test a streamlit app directly with AppTest"
+    "demo_app:Test a streamlit app directly with AppTest"
 ]
 
 [tool.coverage.run]
