@@ -51,6 +51,9 @@ skip_gitignore = true
 [tool.pytest.ini_options]
 addopts = "-ra"
 testpaths = ["tests"]
+markers = [
+    "app_test:Test a streamlit app directly with AppTest"
+]
 
 [tool.coverage.run]
 omit = [".nox/*"]
