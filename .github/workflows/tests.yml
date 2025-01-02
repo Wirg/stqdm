@@ -31,7 +31,7 @@ jobs:
 
       - name: List all format sessions
         if: steps.sessions-cache.outputs.cache-hit != 'true'
-        run: echo "matrix=$(poetry run python commands/list_nox_manifest.py --sessions black isort lint coverage --json)" >> format-sessions
+        run: echo "matrix=$(poetry run python commands/list_nox_manifest.py --sessions black isort lint coverage test_demo_app --json)" >> format-sessions
       - name: List all test sessions
         if: steps.sessions-cache.outputs.cache-hit != 'true'
         run: echo "matrix=$(poetry run python commands/list_nox_manifest.py --sessions tests --json)" >> test-sessions

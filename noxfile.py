@@ -145,7 +145,6 @@ def coverage(session: nox.Session, streamlit_version: str, tqdm_version: str) ->
 
 
 @nox.session(python=None)
-@nox.parametrize(["python", "streamlit_version", "tqdm_version"], [PYTHON_ST_TQDM_VERSIONS[0]] + [PYTHON_ST_TQDM_VERSIONS[-1]])
 def isort(session: nox_poetry.Session):
     session.install("isort")
     session.run("isort", ".", "--check")
