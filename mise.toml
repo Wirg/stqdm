@@ -36,7 +36,7 @@ run = "uv run nox -s tests"
 
 [tasks.lint]
 description = "Run formatting and lint checks"
-run = "uv run nox -s black isort lint"
+run = "uv run nox -s ruff_format ruff_check lint"
 
 [tasks.build]
 description = "Build package artifacts"

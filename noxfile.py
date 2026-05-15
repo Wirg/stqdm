@@ -131,15 +131,15 @@ def coverage(session: nox.Session, streamlit_version: str, tqdm_version: str) ->
 
 
 @nox.session(python="3.12")
-def isort(session: nox.Session) -> None:
-    install(session, "isort")
-    session.run("isort", ".", "--check")
+def ruff_format(session: nox.Session) -> None:
+    install(session, "ruff")
+    session.run("ruff", "format", ".", "--check")
 
 
 @nox.session(python="3.12")
-def black(session: nox.Session) -> None:
-    install(session, "black")
-    session.run("black", ".", "--check")
+def ruff_check(session: nox.Session) -> None:
+    install(session, "ruff")
+    session.run("ruff", "check", ".")
 
 
 @nox.session(python="3.12")
