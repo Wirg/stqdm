@@ -1,4 +1,5 @@
 default_stages: [ pre-commit ]
+default_install_hook_types: [pre-commit, commit-msg]
 repos:
   -   repo: https://github.com/pre-commit/pre-commit-hooks
       rev: v6.0.0
@@ -35,3 +36,8 @@ repos:
         language: system
         types: [ python ]
         stages: [ pre-push ]
+      - id: commitizen
+        name: Commit message (commitizen)
+        entry: uv run cz check --commit-msg-file
+        language: system
+        stages: [ commit-msg ]
