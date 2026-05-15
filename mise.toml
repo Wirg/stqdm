@@ -13,6 +13,10 @@ description = "Install project and development dependencies"
 alias = "i"
 run = "uv sync --all-groups"
 
+[tasks.hooks]
+description = "Install git hooks with the uv-managed pre-commit"
+run = "uv run pre-commit install --install-hooks"
+
 [tasks.test]
 description = "Run the pytest suite"
 run = "uv run pytest"

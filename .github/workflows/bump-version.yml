@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor == 'Wirg'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: ./.github/workflows/actions/install_dependencies
 
@@ -37,7 +37,7 @@ jobs:
           echo "branch=release/${RELEASE}" >> $GITHUB_OUTPUT
 
       - name: Create Pull Request "[Release] ${{ steps.release-data.outputs.version }} => main"
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v8
         id: create-pull-request
         with:
           # PR

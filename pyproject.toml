@@ -23,18 +23,18 @@ Repository = "https://github.com/Wirg/stqdm"
 
 [dependency-groups]
 dev = [
-    "black>=24.10.0",
-    "freezegun>=1.5.1",
-    "hatch>=1.14.0",
-    "isort>=5.13.2",
-    "mypy>=1.14.0",
-    "nox>=2024.10.9",
-    "packaging>=1.16",
-    "pre-commit>=4.0.1",
-    "pylint>=3.3.3",
-    "pytest>=8.3.4",
-    "pytest-cov>=6.0.0",
-    "types-tqdm>=4.66.0.5",
+    "black>=26.3.1",
+    "freezegun>=1.5.4",
+    "hatch>=1.16.5",
+    "isort>=8.0.1",
+    "mypy>=2.1.0",
+    "nox>=2026.4.10",
+    "packaging>=26.0",
+    "pre-commit>=4.6.0",
+    "pylint>=4.0.5",
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
+    "types-tqdm>=4.67.3.20260508",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -42,10 +42,10 @@ packages = ["stqdm"]
 
 [tool.black]
 line-length = 127
-target-version = ['py310', 'py311']
+target-version = ['py310', 'py311', 'py312']
 
 [tool.isort]
-py_version=39
+py_version=310
 profile = "black"
 multi_line_output = 3
 skip_gitignore = true
