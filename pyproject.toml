@@ -9,7 +9,15 @@ keywords = ["streamlit", "progressbar", "progressmeter", "progress", "bar", "met
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
@@ -20,6 +28,8 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/Wirg/stqdm"
 Repository = "https://github.com/Wirg/stqdm"
+Issues = "https://github.com/Wirg/stqdm/issues"
+Changelog = "https://github.com/Wirg/stqdm/releases"
 
 [dependency-groups]
 dev = [

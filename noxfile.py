@@ -2,6 +2,8 @@ import json
 import os
 import re
 import subprocess
+import sys
+import tempfile
 from pathlib import Path
 from typing import Iterable, List
 
@@ -100,7 +102,7 @@ PYTHON_ST_TQDM_VERSIONS = (
     + with_python_versions(["3.10", "3.11", "3.12"], "~=1.29.0", "~=4.66.1")
     + with_python_versions(["3.10", "3.11"], "~=1.29.0", LATEST)
     + with_python_versions(["3.11"], "~=1.41.1", LATEST)
-    + with_python_versions(["3.10", "3.11", "3.12"], LATEST, LATEST)
+    + with_python_versions(["3.10", "3.11", "3.12", "3.13"], LATEST, LATEST)
 )
 
 
@@ -156,6 +158,7 @@ def commitlint(session: nox.Session) -> None:
 
 @nox.session(python="3.12")
 def release(session: nox.Session) -> None:
+    """Build and validate release artifacts."""
     install(session, "twine", "check-wheel-contents")
 
     dist_dir = Path(session.create_tmp()) / "dist"
@@ -165,3 +168,14 @@ def release(session: nox.Session) -> None:
     wheels = [dist for dist in distributions if dist.endswith(".whl")]
     session.run("twine", "check", "--strict", *distributions)
     session.run("check-wheel-contents", *wheels)
+
+    with tempfile.TemporaryDirectory() as venv_dir:
+        session.run(sys.executable, "-m", "venv", venv_dir, external=True)
+        venv_python = Path(venv_dir) / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+        session.run(str(venv_python), "-m", "pip", "install", wheels[0], external=True)
+        session.run(
+            str(venv_python),
+            "-c",
+            "from importlib.metadata import version; import stqdm; assert stqdm.__version__ == version('stqdm')",
+            external=True,
+        )
