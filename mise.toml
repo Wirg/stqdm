@@ -42,6 +42,10 @@ run = "uv run nox -s black isort lint"
 description = "Build package artifacts"
 run = "uv build"
 
+[tasks.release-check]
+description = "Build and validate release artifacts"
+run = "uv run nox -s release"
+
 [tasks.info]
 description = "Print project environment information"
 run = '''
