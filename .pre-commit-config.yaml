@@ -11,21 +11,21 @@ repos:
         - id: check-toml
   - repo: local
     hooks:
-      - id: black
-        name: Formatting (black)
-        entry: uv run black
+      - id: ruff-format
+        name: Formatting (ruff)
+        entry: uv run ruff format
+        language: system
+        types: [ python ]
+        stages: [ pre-commit ]
+      - id: ruff-check
+        name: Imports (ruff)
+        entry: uv run ruff check --fix
         language: system
         types: [ python ]
         stages: [ pre-commit ]
       - id: lint
         name: Linter (pylint)
         entry: uv run pylint
-        language: system
-        types: [ python ]
-        stages: [ pre-commit ]
-      - id: isort
-        name: Ordering imports (isort)
-        entry: uv run isort
         language: system
         types: [ python ]
         stages: [ pre-commit ]
