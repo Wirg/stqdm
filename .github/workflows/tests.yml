@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Cache sessions results
         id: sessions-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             format-sessions
@@ -31,10 +31,10 @@ jobs:
 
       - name: List all format sessions
         if: steps.sessions-cache.outputs.cache-hit != 'true'
-        run: echo "matrix=$(poetry run python commands/list_nox_manifest.py --sessions black isort lint coverage test_demo_app --json)" >> format-sessions
+        run: echo "matrix=$(uv run python commands/list_nox_manifest.py --sessions black isort lint coverage test_demo_app --json)" >> format-sessions
       - name: List all test sessions
         if: steps.sessions-cache.outputs.cache-hit != 'true'
-        run: echo "matrix=$(poetry run python commands/list_nox_manifest.py --sessions tests --json)" >> test-sessions
+        run: echo "matrix=$(uv run python commands/list_nox_manifest.py --sessions tests --json)" >> test-sessions
 
       - name: Export format sessions
         id: export-format-sessions
@@ -86,7 +86,7 @@ jobs:
         with:
           nox_session: ${{ matrix.session }}
       - if: ${{ startsWith(matrix.session, 'coverage') }}
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           files: ./codecov.xml
           flags: pytest

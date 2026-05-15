@@ -1,42 +1,44 @@
-[tool.poetry]
+[project]
 name = "stqdm"
 version = "0.0.5"
 description = "Easy progress bar for streamlit based on the awesome streamlit.progress and tqdm"
-authors = ["Wirg <Wirg@users.noreply.github.com>"]
-maintainers = ["Wirg <Wirg@users.noreply.github.com>"]
-license = "Apache License 2.0"
+authors = [{ name = "Wirg", email = "Wirg@users.noreply.github.com" }]
+maintainers = [{ name = "Wirg", email = "Wirg@users.noreply.github.com" }]
+license = { text = "Apache License 2.0" }
 keywords = ["streamlit", "progressbar", "progressmeter", "progress", "bar", "meter", "rate", "eta", "tqdm"]
 readme = "README.md"
-homepage = "https://github.com/Wirg/stqdm"
-repository = "https://github.com/Wirg/stqdm"
-include = [
-    "LICENSE",
-]
+requires-python = ">=3.10"
 classifiers = [
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+dependencies = [
+    "streamlit>=1.29.0",
+    "tqdm>=4.61",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.10,<4.0"
-tqdm = ">=4.61"
-streamlit = ">=1.29.0"
+[project.urls]
+Homepage = "https://github.com/Wirg/stqdm"
+Repository = "https://github.com/Wirg/stqdm"
 
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^4.0.1"
-pytest = "^8.3.4"
-pytest-cov = "^6.0.0"
-black = "^24.10.0"
-isort = "^5.13.2"
-pylint = "^3.3.3"
-nox = "^2023.4.22"
-nox-poetry = "^1.0.3"
-freezegun = "^1.5.1"
-mypy = "^1.14.0"
-types-tqdm = "^4.66.0.5"
-# Requirement added for compatibility between dev deps & some dependencies
-# during the nox testing: streamlit_version='~=1.29.0'
-packaging = ">=1.16,<24"
+[dependency-groups]
+dev = [
+    "black>=24.10.0",
+    "freezegun>=1.5.1",
+    "hatch>=1.14.0",
+    "isort>=5.13.2",
+    "mypy>=1.14.0",
+    "nox>=2024.10.9",
+    "packaging>=1.16",
+    "pre-commit>=4.0.1",
+    "pylint>=3.3.3",
+    "pytest>=8.3.4",
+    "pytest-cov>=6.0.0",
+    "types-tqdm>=4.66.0.5",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["stqdm"]
 
 [tool.black]
 line-length = 127
@@ -68,7 +70,9 @@ disable = [
     "wrong-import-position",
     "missing-module-docstring",
     "missing-class-docstring",
-    "too-few-public-methods"
+    "no-member",
+    "too-few-public-methods",
+    "too-many-instance-attributes"
 ]
 
 [tool.pylint.basic]
@@ -86,5 +90,5 @@ ignore-imports = "yes"
 min-similarity-lines = 8
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
