@@ -14,12 +14,10 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-st.markdown(
-    """\
+st.markdown("""\
 # Demo app for STqdm.
 
 This is the demo application for stqdm.
 
 Install with `pip install stqdm`.
-"""
-)
+""")

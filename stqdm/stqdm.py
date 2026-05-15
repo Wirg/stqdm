@@ -1,6 +1,6 @@
 import re
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Iterable, Iterator, Optional, cast
+from typing import TYPE_CHECKING, Any, Iterable, Iterator, Optional, cast
 
 import streamlit as st
 from packaging import version
@@ -50,26 +50,11 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         # Will be set when necessary
         self._st_progress_bar: Optional["DeltaGenerator"] = None
         self._st_text: Optional["DeltaGenerator"] = None
-
-        # Handle the way we will display the progress bar
-        # TODO: /!\ we are modifying both argument for backend and frontend
-        ncols: Optional[int] = kwargs.get("ncols")
-        bar_format: Optional[str] = kwargs.get("bar_format")
-        if ncols is None and bar_format is None:
-            ncols = 0  # rely on standard tqdm way to not display progress bar
-        if bar_format:
-            original_bar_format = bar_format
-            bar_format = self.remove_bar_from_format(original_bar_format)
-            should_display_progress_bar = bar_format != original_bar_format
-            should_display_text = bool(bar_format.strip())
-        else:
-            should_display_progress_bar = True
-            should_display_text = True
-        self.should_display_progress_bar: bool = should_display_progress_bar
-        self.should_display_text: bool = should_display_text
-
-        kwargs["ncols"] = ncols
-        kwargs["bar_format"] = bar_format
+        frontend_config = self.build_frontend_config_overrides(**kwargs)
+        self._frontend_ncols: Optional[int] = frontend_config["ncols"]
+        self._frontend_bar_format: Optional[str] = frontend_config["bar_format"]
+        self.should_display_progress_bar: bool = frontend_config["should_display_progress_bar"]
+        self.should_display_text: bool = frontend_config["should_display_text"]
 
         super().__init__(
             iterable=iterable,
@@ -200,7 +185,7 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         if self._backend:
             super().display(msg, pos)
         if self._frontend:
-            self.st_display(**self.format_dict)
+            self.st_display(**self.frontend_format_dict)
         return True
 
     def st_clear(self) -> None:
@@ -223,8 +208,12 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         super().close()
         self.st_clear()
 
+    @property
+    def frontend_format_dict(self) -> dict[str, Any]:
+        return {**self.format_dict, "ncols": self._frontend_ncols, "bar_format": self._frontend_bar_format}
+
     @staticmethod
-    def remove_bar_from_format(bar_format: str) -> str:
+    def build_frontend_config_overrides(**kwargs) -> dict[str, Any]:
         """This is an util for compatibility between bar_format in tqdm and stqdm.
 
         In tqdm's bar_format, {bar} is used to say where the bar will be.
@@ -234,5 +223,48 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         For this reason, we analyze the bar_format to understand if there is a {bar:something} inside and remove it.
         If we find a progress bar inside, new_bar_format != bar_format, then we will display the progress bar if possible.
         If after removing the progress bar, the bar_format is empty, then there is no text to display and we don't.
+
+        Args:
+            **kwargs: Arbitrary keyword arguments.
+                Expected to contain:
+                    ncols (int, optional): The number of columns for the progress bar.
+                        If unspecified, progress bars  are not displayed by default.
+                    bar_format (str, optional): The formatting string for the progress bar, which may include placeholders
+                        like {bar}. This is modified to fit stqdm's display capabilities.
+
+        Returns:
+            dict[str, Any]: A dictionary containing updated configurations for the frontend display, including:
+                - ncols: Adjusted number of columns for the progress bar.
+                - bar_format: Modified bar format string, stripped of unsupported placeholders.
+                - should_display_progress_bar (bool): Indicates whether the progress bar should be displayed.
+                - should_display_text (bool): Indicates whether text should be displayed alongside or instead of the bar.
         """
+        bar_format: Optional[str] = kwargs.get("bar_format")
+        ncols: Optional[int] = kwargs.get("ncols")
+        if bar_format is None:
+            if ncols is None:
+                ncols = 0
+            should_display_progress_bar = True
+            should_display_text = True
+        elif bar_format == "":
+            should_display_progress_bar = True
+            should_display_text = False
+        else:
+            original_bar_format = bar_format
+            # {bar:size} defines the bar + its size (default 10)
+            bar_format = re.sub(BAR_FORMAT_REGEX, "", bar_format)
+            should_display_progress_bar = bar_format != original_bar_format
+            should_display_text = bool(bar_format.strip())
+        return {
+            # ncols should not impact text of stqdm's frontend
+            # ncols = 0, forces a specific bar format
+            "ncols": ncols,
+            "bar_format": bar_format,
+            "should_display_progress_bar": should_display_progress_bar,
+            "should_display_text": should_display_text,
+        }
+
+    @staticmethod
+    def remove_bar_from_format(bar_format: str) -> str:
+        """Remove tqdm's terminal bar placeholder from text shown in Streamlit."""
         return re.sub(BAR_FORMAT_REGEX, "", bar_format)

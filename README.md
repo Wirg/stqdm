@@ -39,7 +39,7 @@ mise run compat
 
 ## How to use
 
-You can find some examples in `examples/`
+You can find runnable examples in `examples/` and the Streamlit demo app in `demo/`.
 
 ### Use stqdm in main
 ```python
@@ -101,3 +101,49 @@ for i in stqdm(range(50), backend=False, frontend=True):
 for i in stqdm(range(50), backend=True, frontend=False):
     sleep(0.5)
 ```
+
+### Setting Default Configuration
+stqdm can set default configuration for all future progress bars.
+
+```python
+from time import sleep
+
+from stqdm import stqdm
+
+# Set default configuration to suppress frontend display
+stqdm.set_default_config(frontend=False)
+
+# Utilize stqdm with the default configuration
+# It will use the new default configuration with frontend=False
+for _ in stqdm(range(50)):
+    sleep(0.5)
+```
+
+### Scoped Configuration
+Use `scope` to temporarily override default arguments in a `with` block.
+
+```python
+from time import sleep
+
+import streamlit as st
+from stqdm import stqdm
+
+# Override default settings temporarily within a scope
+with stqdm.scope(desc="Processing", bar_format="{desc}"):
+    for _ in stqdm(range(10)):
+        sleep(0.5)
+
+# Outside the scope, stqdm reverts to the default settings
+for _ in stqdm(range(10)):
+    sleep(0.5)
+
+# Attach all the stqdm instances used inside the scope
+# to the sidebar, then go back to normal
+with stqdm.scope(st_container=st.sidebar):
+    function_1()
+    function_2()
+```
+
+### Going further with configuration management
+
+See `examples/stqdm_scopes.py` for a complete scoped configuration example.

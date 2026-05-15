@@ -99,16 +99,21 @@ def test_writes_tqdm_description_when_no_length_no_total():
     "bar_format,get_text",
     [
         (None, lambda i, total: tqdm.format_meter(n=i, total=total, elapsed=i, ncols=0, prefix=DESCRIPTION)),
+        ("", lambda i, total: None),
         ("{bar}", lambda i, total: None),
         (
             "{bar}{desc}",
             lambda i, total: tqdm.format_meter(n=i, total=total, elapsed=i, bar_format="{desc}", prefix=DESCRIPTION),
         ),
+        (
+            "{l_bar}{bar}{r_bar}",
+            lambda i, total: tqdm.format_meter(n=i, total=total, elapsed=i, bar_format="{l_bar}{r_bar}", prefix=DESCRIPTION),
+        ),
     ],
 )
 def test_bar_format(bar_format, get_text):
     with freeze_time("2020-01-01") as frozen_time:
-        stqdmed_iterator = stqdm(range(2), bar_format=bar_format, **TQDM_RUN_EVERY_ITERATION, desc=DESCRIPTION)
+        stqdmed_iterator = stqdm(range(2), bar_format=bar_format, desc=DESCRIPTION, **TQDM_RUN_EVERY_ITERATION)
         for i, _ in enumerate(stqdmed_iterator):
             frozen_time.tick(timedelta(seconds=1))
             assert_frontend_as_been_called_with(
@@ -116,6 +121,18 @@ def test_bar_format(bar_format, get_text):
                 text=get_text(i=i, total=2),
                 progress=i / len(stqdmed_iterator),
             )
+
+
+def test_backend_format_is_not_rewritten_by_frontend_compatibility():
+    with patch.object(tqdm, "display") as tqdm_display_mock:
+        stqdmed_iterator = stqdm(
+            range(2), bar_format="{l_bar}{bar}{r_bar}", backend=True, frontend=False, **TQDM_RUN_EVERY_ITERATION
+        )
+        for _ in stqdmed_iterator:
+            pass
+
+    assert stqdmed_iterator.format_dict["bar_format"] == "{l_bar}{bar}{r_bar}"
+    tqdm_display_mock.assert_called()
 
 
 def test_leave_false_keeps_stqdm():
