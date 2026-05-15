@@ -2,6 +2,7 @@ import json
 import os
 import re
 import subprocess
+from pathlib import Path
 from typing import Iterable, List
 
 import nox
@@ -151,3 +152,16 @@ def lint(session: nox.Session) -> None:
 def commitlint(session: nox.Session) -> None:
     install(session, "commitizen")
     session.run("cz", "check", "--rev-range", commitizen_rev_range())
+
+
+@nox.session(python="3.12")
+def release(session: nox.Session) -> None:
+    install(session, "twine", "check-wheel-contents")
+
+    dist_dir = Path(session.create_tmp()) / "dist"
+    session.run("uv", "build", "--out-dir", str(dist_dir), external=True)
+
+    distributions = sorted(str(path) for path in dist_dir.iterdir() if path.suffix in {".gz", ".whl"})
+    wheels = [dist for dist in distributions if dist.endswith(".whl")]
+    session.run("twine", "check", "--strict", *distributions)
+    session.run("check-wheel-contents", *wheels)

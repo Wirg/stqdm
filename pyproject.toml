@@ -24,6 +24,7 @@ Repository = "https://github.com/Wirg/stqdm"
 [dependency-groups]
 dev = [
     "black>=26.3.1",
+    "check-wheel-contents>=0.6.3",
     "commitizen>=4.16.2",
     "freezegun>=1.5.4",
     "hatch>=1.16.5",
@@ -35,6 +36,7 @@ dev = [
     "pylint>=4.0.5",
     "pytest>=9.0.3",
     "pytest-cov>=7.1.0",
+    "twine>=6.2.0",
     "types-tqdm>=4.67.3.20260508",
 ]
 
