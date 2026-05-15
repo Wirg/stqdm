@@ -5,6 +5,7 @@ python.uv_venv_auto = "create|source"
 PROJECT_NAME = "{{ config_root | basename }}"
 
 [tools]
+github-cli = "latest"
 python = "{{ get_env(name='PYTHON_VERSION', default='3.12') }}"
 uv = "latest"
 
@@ -15,7 +16,11 @@ run = "uv sync --all-groups"
 
 [tasks.hooks]
 description = "Install git hooks with the uv-managed pre-commit"
-run = "uv run pre-commit install --install-hooks"
+run = "uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type commit-msg"
+
+[tasks.commitlint]
+description = "Check commit messages with Commitizen"
+run = "uv run nox -s commitlint"
 
 [tasks.test]
 description = "Run the pytest suite"

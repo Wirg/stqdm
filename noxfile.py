@@ -1,3 +1,5 @@
+import json
+import os
 import re
 import subprocess
 from typing import Iterable, List
@@ -6,6 +8,7 @@ import nox
 from packaging.version import Version
 
 LATEST = "@latest"
+COMMITIZEN_ADOPTION_BASE = "33e5301a3f31ec88edf533b2eed80f38d1573345"
 nox.options.default_venv_backend = "uv|virtualenv"
 
 
@@ -50,6 +53,45 @@ def install(session: nox.Session, *dependencies: str) -> None:
 def tracked_python_files(*paths: str) -> list[str]:
     files = subprocess.check_output(["git", "ls-files", *paths], text=True).splitlines()
     return [file for file in files if file.endswith(".py")]
+
+
+def git_ref_exists(ref: str) -> bool:
+    return subprocess.run(["git", "rev-parse", "--verify", "--quiet", ref], check=False).returncode == 0
+
+
+def git_is_ancestor(ancestor: str, descendant: str) -> bool:
+    if not git_ref_exists(ancestor) or not git_ref_exists(descendant):
+        return False
+    return subprocess.run(["git", "merge-base", "--is-ancestor", ancestor, descendant], check=False).returncode == 0
+
+
+def commitizen_range_start(base: str, head: str) -> str:
+    adoption_base = os.environ.get("COMMITIZEN_ADOPTION_BASE", COMMITIZEN_ADOPTION_BASE)
+    if git_is_ancestor(adoption_base, head) and not git_is_ancestor(adoption_base, base):
+        return adoption_base
+    return base
+
+
+def commitizen_rev_range() -> str:
+    """Build the commit range that should be checked by Commitizen."""
+    explicit_rev_range = os.environ.get("COMMITIZEN_REV_RANGE")
+    if explicit_rev_range:
+        return explicit_rev_range
+
+    event_path = os.environ.get("GITHUB_EVENT_PATH")
+    if event_path:
+        with open(event_path, encoding="utf-8") as event_file:
+            event = json.load(event_file)
+        if "pull_request" in event:
+            base = event["pull_request"]["base"]["sha"]
+            head = event["pull_request"]["head"]["sha"]
+            return f"{commitizen_range_start(base, head)}..{head}"
+        before = event.get("before")
+        after = event.get("after")
+        if before and after and set(before) != {"0"}:
+            return f"{commitizen_range_start(before, after)}..{after}"
+
+    return "HEAD~1..HEAD"
 
 
 PYTHON_ST_TQDM_VERSIONS = (
@@ -103,3 +145,9 @@ def black(session: nox.Session) -> None:
 def lint(session: nox.Session) -> None:
     install(session, ".", "pylint", "nox", "tqdm", "streamlit", "pytest", "freezegun")
     session.run("pylint", *tracked_python_files("stqdm", "examples", "tests", "noxfile.py"))
+
+
+@nox.session(python="3.12")
+def commitlint(session: nox.Session) -> None:
+    install(session, "commitizen")
+    session.run("cz", "check", "--rev-range", commitizen_rev_range())
