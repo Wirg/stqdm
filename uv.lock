@@ -2398,18 +2398,18 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "black", specifier = ">=24.10.0" },
-    { name = "freezegun", specifier = ">=1.5.1" },
-    { name = "hatch", specifier = ">=1.14.0" },
-    { name = "isort", specifier = ">=5.13.2" },
-    { name = "mypy", specifier = ">=1.14.0" },
-    { name = "nox", specifier = ">=2024.10.9" },
-    { name = "packaging", specifier = ">=1.16" },
-    { name = "pre-commit", specifier = ">=4.0.1" },
-    { name = "pylint", specifier = ">=3.3.3" },
-    { name = "pytest", specifier = ">=8.3.4" },
-    { name = "pytest-cov", specifier = ">=6.0.0" },
-    { name = "types-tqdm", specifier = ">=4.66.0.5" },
+    { name = "black", specifier = ">=26.3.1" },
+    { name = "freezegun", specifier = ">=1.5.4" },
+    { name = "hatch", specifier = ">=1.16.5" },
+    { name = "isort", specifier = ">=8.0.1" },
+    { name = "mypy", specifier = ">=2.1.0" },
+    { name = "nox", specifier = ">=2026.4.10" },
+    { name = "packaging", specifier = ">=26.0" },
+    { name = "pre-commit", specifier = ">=4.6.0" },
+    { name = "pylint", specifier = ">=4.0.5" },
+    { name = "pytest", specifier = ">=9.0.3" },
+    { name = "pytest-cov", specifier = ">=7.1.0" },
+    { name = "types-tqdm", specifier = ">=4.67.3.20260508" },
 ]
 
 [[package]]
