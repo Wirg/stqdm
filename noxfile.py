@@ -98,11 +98,10 @@ def commitizen_rev_range() -> str:
 
 
 PYTHON_ST_TQDM_VERSIONS = (
-    with_python_versions(["3.10", "3.11"], "~=1.29.0", "~=4.61")
-    + with_python_versions(["3.10", "3.11", "3.12"], "~=1.29.0", "~=4.66.1")
-    + with_python_versions(["3.10", "3.11"], "~=1.29.0", LATEST)
-    + with_python_versions(["3.11"], "~=1.41.1", LATEST)
-    + with_python_versions(["3.10", "3.11", "3.12", "3.13"], LATEST, LATEST)
+    with_python_versions(["3.11", "3.12"], "~=1.41.0", "~=4.66.0")
+    + with_python_versions(["3.12", "3.13"], "~=1.50.0", "~=4.67.0")
+    + with_python_versions(["3.13", "3.14"], "~=1.56.0", LATEST)
+    + with_python_versions(["3.13", "3.14"], LATEST, LATEST)
 )
 
 
@@ -132,31 +131,31 @@ def coverage(session: nox.Session, streamlit_version: str, tqdm_version: str) ->
     session.run("pytest", "--cov-fail-under=15", "--cov=stqdm", "--cov-report=xml:codecov.xml", "-m", "not demo_app")
 
 
-@nox.session(python="3.12")
+@nox.session(python="3.13")
 def ruff_format(session: nox.Session) -> None:
     install(session, "ruff")
     session.run("ruff", "format", ".", "--check")
 
 
-@nox.session(python="3.12")
+@nox.session(python="3.13")
 def ruff_check(session: nox.Session) -> None:
     install(session, "ruff")
     session.run("ruff", "check", ".")
 
 
-@nox.session(python="3.12")
+@nox.session(python="3.13")
 def lint(session: nox.Session) -> None:
     install(session, ".", "pylint", "nox", "tqdm", "streamlit", "pytest", "freezegun")
     session.run("pylint", *tracked_python_files("stqdm", "examples", "tests", "noxfile.py"))
 
 
-@nox.session(python="3.12")
+@nox.session(python="3.13")
 def commitlint(session: nox.Session) -> None:
     install(session, "commitizen")
     session.run("cz", "check", "--rev-range", commitizen_rev_range())
 
 
-@nox.session(python="3.12")
+@nox.session(python="3.13")
 def release(session: nox.Session) -> None:
     """Build and validate release artifacts."""
     install(session, "twine", "check-wheel-contents")
