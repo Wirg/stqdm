@@ -27,12 +27,12 @@ jobs:
       - uses: ./.github/workflows/actions/install_dependencies
 
       - name: bump version
-        run: poetry version ${{ github.event.inputs.version }}
+        run: uv run hatch version ${{ github.event.inputs.version }}
 
       - name: export release-data
         id: release-data
         run: |
-          export RELEASE="v$(poetry version --short)"
+          export RELEASE="v$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')"
           echo "version=${RELEASE}" >> $GITHUB_OUTPUT
           echo "branch=release/${RELEASE}" >> $GITHUB_OUTPUT
 
@@ -50,7 +50,9 @@ jobs:
 
           # Commit
           commit-message: "bump to version ${{ steps.release-data.outputs.version }}"
-          add-paths: "./pyproject.toml"
+          add-paths: |
+            ./pyproject.toml
+            ./uv.lock
 
           # Auth
           token: ${{ secrets.GH_WIRG_BOT_PAT }}

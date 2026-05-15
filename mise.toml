@@ -1,0 +1,42 @@
+[settings]
+python.uv_venv_auto = "create|source"
+
+[env]
+PROJECT_NAME = "{{ config_root | basename }}"
+
+[tools]
+python = "{{ get_env(name='PYTHON_VERSION', default='3.12') }}"
+uv = "latest"
+
+[tasks.install]
+description = "Install project and development dependencies"
+alias = "i"
+run = "uv sync --all-groups"
+
+[tasks.test]
+description = "Run the pytest suite"
+run = "uv run pytest"
+
+[tasks.nox-list]
+description = "List nox compatibility sessions"
+run = "uv run nox --list"
+
+[tasks.compat]
+description = "Run the nox compatibility test matrix"
+run = "uv run nox -s tests"
+
+[tasks.lint]
+description = "Run formatting and lint checks"
+run = "uv run nox -s black isort lint"
+
+[tasks.build]
+description = "Build package artifacts"
+run = "uv build"
+
+[tasks.info]
+description = "Print project environment information"
+run = '''
+echo "Project: $PROJECT_NAME"
+echo "Python: $(python --version)"
+echo "Virtual Environment: $VIRTUAL_ENV"
+'''

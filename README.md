@@ -16,6 +16,27 @@ stqdm is the simplest way to handle a progress bar in streamlit app.
 pip install stqdm
 ```
 
+## Development
+
+This project uses `uv` for packaging and dependency management, with `mise` managing local tools and sourcing uv's `.venv`.
+Trust the local mise config once, then install tools and dependencies:
+
+```sh
+mise trust
+mise install
+mise run install
+mise run test
+```
+
+`mise` manages local tools, `uv` manages the project environment and lockfile, and `nox` creates isolated compatibility environments. Nox is configured to use uv as its virtualenv backend when available.
+
+Compatibility checks are managed with `nox`:
+
+```sh
+mise run nox-list
+mise run compat
+```
+
 ## How to use
 
 You can find some examples in `examples/`
