@@ -39,7 +39,7 @@ mise run compat
 
 ## How to use
 
-You can find runnable examples in `examples/` and the Streamlit demo app in `demo/`.
+You can run the Streamlit demo app from `demo/app/Home.py`.
 
 ### Use stqdm in main
 ```python
@@ -146,4 +146,4 @@ with stqdm.scope(st_container=st.sidebar):
 
 ### Going further with configuration management
 
-See `examples/stqdm_scopes.py` for a complete scoped configuration example.
+See the Streamlit demo app for the complete scoped configuration example.

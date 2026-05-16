@@ -146,7 +146,7 @@ def ruff_check(session: nox.Session) -> None:
 @nox.session(python="3.13")
 def lint(session: nox.Session) -> None:
     install(session, ".", "pylint", "nox", "tqdm", "streamlit", "pytest", "freezegun")
-    session.run("pylint", *tracked_python_files("stqdm", "examples", "tests", "noxfile.py"))
+    session.run("pylint", *tracked_python_files("stqdm", "tests", "noxfile.py"))
 
 
 @nox.session(python="3.13")
