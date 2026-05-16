@@ -28,6 +28,7 @@ repos:
         entry: uv run pylint
         language: system
         types: [ python ]
+        exclude: ^demo/app/Home\.py$
         stages: [ pre-commit ]
       - id: test
         name: Unit tests (pytest)

@@ -59,3 +59,11 @@ def test_progress(stop_iterations: int, total_iterations: int, task_duration: fl
             # pylint: disable=line-too-long
             == f"{stop_iterations / total_iterations:.0%} {stop_iterations}/{total_iterations} [{elapsed}<{remaining},  {task_duration:.2f}s/it]"
         )
+
+
+def test_single_entrypoint_renders_with_app_test():
+    with freeze_time_and_mock_long_running_task("2024-01-01"):
+        app_test = AppTest.from_file("demo/app/Home.py")
+        app_test.run(timeout=5)
+
+    assert not app_test.exception

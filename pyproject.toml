@@ -70,7 +70,7 @@ major_version_zero = true
 addopts = "-ra"
 testpaths = ["tests"]
 markers = [
-    "demo_app:Test a streamlit app directly with AppTest"
+    "demo_app:Test a streamlit app directly with AppTest",
 ]
 
 [tool.coverage.run]
