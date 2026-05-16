@@ -8,7 +8,6 @@ from freezegun import freeze_time
 from streamlit.testing.v1.app_test import AppTest
 from streamlit.testing.v1.element_tree import Block, Element
 
-import demo.src.utils
 from demo.src.demo_apps import simple_stqdm_in_main
 
 pytestmark = pytest.mark.demo_app
@@ -32,7 +31,7 @@ def collect_block_elements(block: Block, should_take: Callable[[Element], bool])
 def freeze_time_and_mock_long_running_task(original_date: str):
     """A context manager that uses freezegun to freeze time and mock the long_running_task function."""
     with freeze_time(original_date, ignore=["streamlit"]) as frozen_datetime:
-        with mock.patch.object(demo.src.utils, "long_running_task", side_effect=frozen_datetime.tick):
+        with mock.patch("demo.src.demo_apps.long_running_task", side_effect=frozen_datetime.tick):
             yield frozen_datetime
 
 
