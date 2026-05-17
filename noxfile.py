@@ -11,6 +11,8 @@ import nox
 from packaging.version import Version
 
 LATEST = "@latest"
+BROWSER_SMOKE_PYTHON = "3.12"
+BROWSER_SMOKE_STREAMLIT = "~=1.56.0"
 COMMITIZEN_ADOPTION_BASE = "33e5301a3f31ec88edf533b2eed80f38d1573345"
 nox.options.default_venv_backend = "uv|virtualenv"
 
@@ -121,9 +123,11 @@ def test_demo_app(session: nox.Session, streamlit_version: str, tqdm_version: st
     session.run("pytest", "-m", "demo_app")
 
 
-@nox.session
+@nox.session(python=BROWSER_SMOKE_PYTHON)
 def browser_smoke(session: nox.Session) -> None:
-    dependencies_to_install = build_dependencies_to_install_list(LATEST, LATEST, [".", "pytest", "playwright"])
+    dependencies_to_install = build_dependencies_to_install_list(
+        BROWSER_SMOKE_STREAMLIT, LATEST, [".", "pytest", "playwright"]
+    )
     install(session, *dependencies_to_install)
     session.run("python", "-m", "playwright", "install", "chromium")
     session.run("pytest", "-m", "browser_smoke", "tests/test_streamlit_browser.py")
