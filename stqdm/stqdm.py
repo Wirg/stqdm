@@ -1,3 +1,4 @@
+import io
 import re
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, Iterable, Iterator, Optional, cast
@@ -46,6 +47,9 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         self.st_container: "DeltaGenerator" = kwargs.pop("st_container", st.container())
         self._backend: bool = kwargs.pop("backend", False)
         self._frontend: bool = kwargs.pop("frontend", True)
+        if not self._backend:
+            # Route tqdm's terminal writes to an in-memory sink so close() cannot leak a trailing newline.
+            kwargs["file"] = io.StringIO()
 
         # Will be set when necessary
         self._st_progress_bar: Optional["DeltaGenerator"] = None
@@ -163,13 +167,14 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
 
         if can_display_progress_bar and self.should_display_progress_bar:
             total = cast(float, total)  # total is not None
+            progress = min(max(n / total, 0.0), 1.0)
             if not can_display_text:
-                self.st_progress_bar.progress(n / total)
+                self.st_progress_bar.progress(progress)
             elif IS_TEXT_INSIDE_PROGRESS_AVAILABLE:
-                self.st_progress_bar.progress(n / total, text=meter_text)
+                self.st_progress_bar.progress(progress, text=meter_text)
             else:
                 self.st_text.write(meter_text)
-                self.st_progress_bar.progress(n / total)
+                self.st_progress_bar.progress(progress)
         else:
             if can_display_text:
                 self.st_text.write(meter_text)
