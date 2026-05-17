@@ -35,6 +35,38 @@ def freeze_time_and_mock_long_running_task(original_date: str):
             yield frozen_datetime
 
 
+def issue_101_nested_loops_issue() -> None:
+    """Reproduce the nested loop progress update pattern from issue 101."""
+    from functools import partial  # pylint: disable=import-outside-toplevel
+
+    import streamlit as st  # pylint: disable=import-outside-toplevel
+
+    from stqdm import stqdm  # pylint: disable=import-outside-toplevel
+
+    progress = partial(stqdm, st_container=st.sidebar)
+
+    def subfun(total: int) -> None:
+        for _ in progress(range(total), desc="paragraph"):
+            pass
+
+    sections = "ABCDEFGHIJK"
+    with progress(total=len(sections), desc="Working on") as pbar:
+        for section_counter, draft_section in enumerate(sections):
+            pbar.update(section_counter)
+            pbar.set_description(desc=f"Section '{draft_section}'")
+            subfun(3)
+
+
+def issue_98_two_stqdm_instances() -> None:
+    """Reproduce the consecutive rerun pattern from issue 98."""
+    from stqdm import stqdm  # pylint: disable=import-outside-toplevel
+
+    for _ in stqdm(range(2)):
+        pass
+    for _ in stqdm(range(2)):
+        pass
+
+
 @pytest.mark.parametrize("stop_iterations,total_iterations,task_duration", [(10, 50, 5), (13, 25, 3), (0, 50, 5), (50, 50, 2)])
 def test_progress(stop_iterations: int, total_iterations: int, task_duration: float):
     with freeze_time_and_mock_long_running_task("2024-01-01"):
@@ -118,3 +150,26 @@ def test_scoped_configuration_demo_renders_description():
     progress_bars = collect_block_elements(app_test.main, should_take=lambda element: element.type == "progress")
     assert len(progress_bars) >= 2
     assert any("Hello Scoped" in getattr(progress_bar, "text", "") for progress_bar in progress_bars)
+
+
+def test_issue_101_nested_loops_do_not_raise_streamlit_api_exception():
+    with freeze_time_and_mock_long_running_task("2024-01-01"):
+        app_test = AppTest.from_function(issue_101_nested_loops_issue)
+        app_test.run(timeout=5)
+
+    assert not app_test.exception
+    progress_bars = collect_block_elements(app_test.main, should_take=lambda element: element.type == "progress")
+    progress_bars.extend(collect_block_elements(app_test.sidebar, should_take=lambda element: element.type == "progress"))
+    assert len(progress_bars) >= 2
+    assert all(0 <= progress_bar.value <= 100 for progress_bar in progress_bars)
+
+
+def test_issue_98_two_stqdm_instances_survive_reruns():
+    with freeze_time_and_mock_long_running_task("2024-01-01"):
+        app_test = AppTest.from_function(issue_98_two_stqdm_instances)
+        app_test.run(timeout=5)
+        app_test.run(timeout=5)
+
+    assert not app_test.exception
+    progress_bars = collect_block_elements(app_test.main, should_take=lambda element: element.type == "progress")
+    assert len(progress_bars) >= 1

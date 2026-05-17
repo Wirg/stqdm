@@ -95,6 +95,15 @@ def test_writes_tqdm_description_when_no_length_no_total():
         )
 
 
+def test_issue_104_backend_false_does_not_emit_console_output(capsys):
+    for _ in stqdm(range(2), backend=False, frontend=True, **TQDM_RUN_EVERY_ITERATION):
+        pass
+
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == ""
+
+
 @pytest.mark.parametrize(
     "bar_format,get_text",
     [
