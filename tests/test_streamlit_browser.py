@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-# pylint: disable=missing-function-docstring,redefined-outer-name
+# pylint: disable=import-error,missing-function-docstring,redefined-outer-name
 import contextlib
 import os
 import socket
