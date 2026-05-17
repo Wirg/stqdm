@@ -122,6 +122,14 @@ def test_demo_app(session: nox.Session, streamlit_version: str, tqdm_version: st
 
 
 @nox.session
+def browser_smoke(session: nox.Session) -> None:
+    dependencies_to_install = build_dependencies_to_install_list(LATEST, LATEST, [".", "pytest", "playwright"])
+    install(session, *dependencies_to_install)
+    session.run("python", "-m", "playwright", "install", "chromium")
+    session.run("pytest", "-m", "browser_smoke", "tests/test_streamlit_browser.py")
+
+
+@nox.session
 @nox.parametrize(["python", "streamlit_version", "tqdm_version"], [PYTHON_ST_TQDM_VERSIONS[0], PYTHON_ST_TQDM_VERSIONS[-1]])
 def coverage(session: nox.Session, streamlit_version: str, tqdm_version: str) -> None:
     dependencies_to_install = build_dependencies_to_install_list(

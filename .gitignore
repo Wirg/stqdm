@@ -130,3 +130,6 @@ dmypy.json
 .pyre/
 
 .idea/
+
+# Playwright MCP session artifacts
+.playwright-mcp/

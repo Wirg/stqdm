@@ -70,6 +70,7 @@ major_version_zero = true
 addopts = "-ra"
 testpaths = ["tests"]
 markers = [
+    "browser_smoke: Browser smoke tests for the Streamlit demo app",
     "demo_app:Test a streamlit app directly with AppTest",
 ]
 
