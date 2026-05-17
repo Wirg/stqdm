@@ -131,7 +131,7 @@ def _wait_for_heading(page: Page, heading: str) -> None:
 
 
 def _progress_bars(page: Page):
-    return page.locator('[data-testid="stProgressBar"]')
+    return page.get_by_role("progressbar")
 
 
 def _goto_page(page: Page, streamlit_app_url: str, path: str) -> None:
@@ -156,7 +156,7 @@ def test_navigation_to_sidebar_page_renders_sidebar_progress(page: Page, streaml
     _wait_for_heading(page, "Use stqdm in the sidebar")
     sidebar = page.locator('section[data-testid="stSidebar"]')
     sidebar.wait_for(timeout=30_000)
-    sidebar_bars = sidebar.locator('[data-testid="stProgressBar"]')
+    sidebar_bars = sidebar.get_by_role("progressbar")
     sidebar_bars.first.wait_for(timeout=30_000)
 
     assert sidebar_bars.count() >= 1
@@ -185,6 +185,17 @@ def test_multi_bars_page_renders_three_columns_of_progress(page: Page, streamlit
     assert urlparse(page.url).path.endswith("/stqdm_multi_bars_in_columns")
 
 
+def test_nested_progress_page_renders_without_error(page: Page, streamlit_app_url: str) -> None:
+    _goto_page(page, streamlit_app_url, "stqdm_in_main_nested")
+
+    _wait_for_heading(page, "Nested progress bars")
+    bars = _progress_bars(page)
+    bars.first.wait_for(timeout=30_000)
+
+    assert bars.count() >= 1
+    assert urlparse(page.url).path.endswith("/stqdm_in_main_nested")
+
+
 def test_patch_tqdm_auto_page_shows_patched_status(page: Page, streamlit_app_url: str) -> None:
     _goto_page(page, streamlit_app_url, "stqdm_patch_tqdm")
 
@@ -204,6 +215,17 @@ def test_scoped_configuration_page_shows_desc_in_custom_bar(page: Page, streamli
 
     assert bars.count() >= 2
     assert urlparse(page.url).path.endswith("/stqdm_scopes")
+
+
+def test_last_print_t_bug_page_renders_without_error(page: Page, streamlit_app_url: str) -> None:
+    _goto_page(page, streamlit_app_url, "stqdm_last_print_t_bug")
+
+    _wait_for_heading(page, "last_print_t bug")
+    bars = _progress_bars(page)
+    bars.first.wait_for(timeout=30_000)
+
+    assert bars.count() >= 1
+    assert urlparse(page.url).path.endswith("/stqdm_last_print_t_bug")
 
 
 def test_bar_format_page_shows_desc_text_when_requested(page: Page, streamlit_app_url: str) -> None:
