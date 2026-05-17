@@ -161,9 +161,27 @@ def stqdm_bar_format(iterations: int = 10, task_duration: float = 0.01, bar_form
 
     options = ["", "{bar}", "{l_bar}{bar}{r_bar}", "{desc} {percentage:.0f}%", "blabla", None]
     index = options.index(bar_format) if bar_format in options else 2
+    st.markdown(
+        """
+        `bar_format` controls how tqdm formats the text around the bar.
+
+        - `None`: use the default tqdm-style progress meter.
+        - `""`: keep only the bar widget, with no text.
+        - `"{bar}"`: same idea as `""`, but expressed as an explicit bar placeholder.
+        - `"{l_bar}{bar}{r_bar}"`: tqdm's default terminal layout, adapted to Streamlit.
+        - `"{desc} {percentage:.0f}%"`: text only; no bar widget is shown.
+        - `"blabla"`: plain text fallback for a template with no bar placeholder.
+        """
+    )
     selected_bar_format = st.selectbox("Select bar_format", options, index=index)
     stqdm.set_lock(RLock())
-    for _ in stqdm(range(iterations), bar_format=selected_bar_format, backend=True, frontend=True):
+    for _ in stqdm(
+        range(iterations),
+        desc="Format",
+        bar_format=selected_bar_format,
+        backend=True,
+        frontend=True,
+    ):
         demo_apps.long_running_task(task_duration)
 
 
@@ -177,7 +195,7 @@ def stqdm_scopes(iterations: int = 5, task_duration: float = 0.01) -> None:
         for _ in stqdm(range(iterations)):
             demo_apps.long_running_task(task_duration)
 
-    with stqdm.scope(frontend=True, bar_format="Hello{desc}{bar}"):
+    with stqdm.scope(frontend=True, bar_format="Hello {desc}{bar}", desc="Scoped"):
         run_job()
         with stqdm.scope(frontend=True):
             run_job()

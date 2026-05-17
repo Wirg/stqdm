@@ -8,7 +8,7 @@ from freezegun import freeze_time
 from streamlit.testing.v1.app_test import AppTest
 from streamlit.testing.v1.element_tree import Block, Element
 
-from demo.src.demo_apps import simple_stqdm_in_main
+from demo.src.demo_apps import simple_stqdm_in_main, stqdm_bar_format, stqdm_scopes
 
 pytestmark = pytest.mark.demo_app
 
@@ -66,3 +66,55 @@ def test_single_entrypoint_renders_with_app_test():
         app_test.run(timeout=5)
 
     assert not app_test.exception
+
+
+@pytest.mark.parametrize(
+    "bar_format,expected_kind,expected_text",
+    [
+        (None, "progress", "Format"),
+        ("", "progress", ""),
+        ("{bar}", "progress", ""),
+        ("{l_bar}{bar}{r_bar}", "progress", "Format"),
+        ("{desc} {percentage:.0f}%", "markdown", "Format 100%"),
+    ],
+)
+def test_bar_format_demo_renders_expected_output(bar_format: str | None, expected_kind: str, expected_text: str):
+    with freeze_time_and_mock_long_running_task("2024-01-01"):
+        app_test = AppTest.from_function(
+            stqdm_bar_format,
+            kwargs={"iterations": 3, "task_duration": 0.0, "bar_format": bar_format},
+        )
+        app_test.run(timeout=5)
+
+    assert not app_test.exception
+    assert any(
+        "controls how tqdm formats the text around the bar"
+        in str(getattr(element, "text", None) or getattr(element, "value", ""))
+        for element in collect_block_elements(app_test.main, should_take=lambda element: element.type == "markdown")
+    )
+    assert len(app_test.selectbox) == 1
+    assert app_test.selectbox[0].value == bar_format
+
+    collected = collect_block_elements(app_test.main, should_take=lambda element: element.type == expected_kind)
+    if expected_kind == "markdown":
+        assert len(collected) >= 1
+        assert any(
+            expected_text in str(getattr(element, "text", None) or getattr(element, "value", "")) for element in collected
+        )
+    else:
+        assert len(collected) == 1
+        actual_text = getattr(collected[0], "text", None)
+        if actual_text is None:
+            actual_text = getattr(collected[0], "value", None)
+        assert expected_text in str(actual_text or "")
+
+
+def test_scoped_configuration_demo_renders_description():
+    with freeze_time_and_mock_long_running_task("2024-01-01"):
+        app_test = AppTest.from_function(stqdm_scopes, kwargs={"iterations": 2, "task_duration": 0.0})
+        app_test.run(timeout=5)
+
+    assert not app_test.exception
+    progress_bars = collect_block_elements(app_test.main, should_take=lambda element: element.type == "progress")
+    assert len(progress_bars) >= 2
+    assert any("Hello Scoped" in getattr(progress_bar, "text", "") for progress_bar in progress_bars)
