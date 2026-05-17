@@ -41,6 +41,8 @@ mise run compat
 
 You can run the Streamlit demo app from `demo/app/Home.py`.
 
+The demo surface and the behaviors it covers are documented in [demo/FEATURES.md](demo/FEATURES.md).
+
 ### Use stqdm in main
 ```python
 from time import sleep
