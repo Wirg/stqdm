@@ -12,19 +12,11 @@ runs:
     - name: Escape characters from ${{ inputs.nox_session }}
       run: echo "${{ inputs.nox_session }}" | sed "s/[,'~()\. =]/_/g" | awk '{print "nox_session_escape="$1}' >> $GITHUB_ENV
       shell: bash
-    - name: Restore .nox envdir
-      uses: actions/cache/restore@v5
+    - name: Cache .nox envdir
+      uses: actions/cache@v5
       id: cache
       with:
         path: .nox
         key: nox-envdir-${{ runner.os }}-${{ github.head_ref || github.ref_name }}-${{ hashFiles('uv.lock', 'pyproject.toml', 'noxfile.py') }}-session-${{ env.nox_session_escape }}
-        restore-keys: |
-          nox-envdir-${{ runner.os }}-main-${{ hashFiles('uv.lock', 'pyproject.toml', 'noxfile.py') }}-session-${{ env.nox_session_escape }}
     - run: uv run nox --session "${{ inputs.nox_session }}" --reuse-existing-virtualenvs
       shell: bash
-    - name: Save .nox envdir
-      if: github.event_name == 'push' && steps.cache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v5
-      with:
-        path: .nox
-        key: nox-envdir-${{ runner.os }}-${{ github.head_ref || github.ref_name }}-${{ hashFiles('uv.lock', 'pyproject.toml', 'noxfile.py') }}-session-${{ env.nox_session_escape }}
