@@ -21,10 +21,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Restore sessions cache
+        id: sessions-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            format-sessions
+            test-sessions
+          key: sessions-${{ runner.os }}-${{ github.head_ref || github.ref_name }}-${{ hashFiles('noxfile.py', 'commands/list_nox_manifest.py') }}
+          restore-keys: |
+            sessions-${{ runner.os }}-main-${{ hashFiles('noxfile.py', 'commands/list_nox_manifest.py') }}
       - uses: ./.github/workflows/actions/install_dependencies
       - name: List all format sessions
+        if: steps.sessions-cache.outputs.cache-hit != 'true'
         run: echo "matrix=$(uv run python commands/list_nox_manifest.py --sessions ruff_format ruff_check lint commitlint release coverage test_demo_app --json)" >> format-sessions
       - name: List all test sessions
+        if: steps.sessions-cache.outputs.cache-hit != 'true'
         run: echo "matrix=$(uv run python commands/list_nox_manifest.py --sessions tests --json)" >> test-sessions
 
       - name: Export format sessions
@@ -33,6 +45,14 @@ jobs:
       - name: Export test sessions
         id: export-test-sessions
         run: cat test-sessions >> $GITHUB_OUTPUT
+      - name: Save sessions cache
+        if: github.event_name == 'push' && steps.sessions-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            format-sessions
+            test-sessions
+          key: sessions-${{ runner.os }}-${{ github.head_ref || github.ref_name }}-${{ hashFiles('noxfile.py', 'commands/list_nox_manifest.py') }}
     outputs:
       format_sessions: ${{ steps.export-format-sessions.outputs.matrix }}
       test_sessions: ${{ steps.export-test-sessions.outputs.matrix }}

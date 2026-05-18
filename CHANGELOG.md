@@ -5,7 +5,7 @@
 ### Security
 - Hardened GitHub Actions permissions for CI and release workflows.
 - Tightened the shared `.nox` cache key to avoid reusing incompatible environments.
-- Switched CI session caches to branch-scoped restore keys with a `main` fallback and write-back only from push jobs.
+- Restored the session-manifest cache in CI with branch-scoped keys and a `main` fallback.
 - Removed the unused `create_auto_merge_pr` workflow helper.
 
 ### Added
