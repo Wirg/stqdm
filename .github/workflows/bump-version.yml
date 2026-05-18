@@ -16,6 +16,9 @@ on:
           - preminor
           - prepatch
 
+permissions:
+  contents: read
+
 jobs:
   bump-version:
     environment: publish
