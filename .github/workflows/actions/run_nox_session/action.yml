@@ -17,6 +17,6 @@ runs:
       id: cache
       with:
         path: .nox
-        key: nox-envdir-${{ runner.os }}-session-${{ env.nox_session_escape }}
+        key: nox-envdir-${{ runner.os }}-${{ hashFiles('uv.lock', 'pyproject.toml', 'noxfile.py') }}-session-${{ env.nox_session_escape }}
     - run: uv run nox --session "${{ inputs.nox_session }}" --reuse-existing-virtualenvs
       shell: bash
