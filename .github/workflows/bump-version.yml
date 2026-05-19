@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor == 'Wirg'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - uses: ./.github/workflows/actions/install_dependencies
 
@@ -40,7 +40,7 @@ jobs:
           echo "branch=release/${RELEASE}" >> $GITHUB_OUTPUT
 
       - name: Create Pull Request "[Release] ${{ steps.release-data.outputs.version }} => main"
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         id: create-pull-request
         with:
           # PR
@@ -61,7 +61,7 @@ jobs:
           token: ${{ secrets.GH_WIRG_BOT_PAT }}
 
       - name: Auto-merge Pull Request
-        uses: peter-evans/enable-pull-request-automerge@v3
+        uses: peter-evans/enable-pull-request-automerge@a660677d5469627102a1c1e11409dd063606628d # v3.0.0
         with:
           token: ${{ secrets.GH_WIRG_BOT_PAT }}
           pull-request-number: ${{ steps.create-pull-request.outputs.pull-request-number }}

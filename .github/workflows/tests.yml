@@ -20,10 +20,10 @@ jobs:
   list_nox_sessions_groups:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Cache sessions
         id: sessions-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             format-sessions
@@ -59,7 +59,7 @@ jobs:
     name: Run tests session ${{ matrix.session }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
       - uses: ./.github/workflows/actions/install_dependencies
@@ -75,7 +75,7 @@ jobs:
     needs: list_nox_sessions_groups
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
       - uses: ./.github/workflows/actions/install_dependencies
@@ -95,7 +95,7 @@ jobs:
     name: Run format session ${{ matrix.session }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
       - uses: ./.github/workflows/actions/install_dependencies
@@ -107,7 +107,7 @@ jobs:
         with:
           nox_session: ${{ matrix.session }}
       - if: ${{ startsWith(matrix.session, 'coverage') }}
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@cddd853df119a48c5be31a973f8cd97e12e35e16 # v6.0.1
         with:
           files: ./codecov.xml
           flags: pytest
