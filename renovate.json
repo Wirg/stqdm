@@ -1,0 +1,13 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    "schedule:monthly"
+  ],
+  "enabledManagers": ["github-actions"],
+  "minimumReleaseAge": "1 week",
+  "internalChecksFilter": "strict",
+  "timezone": "Europe/Rome",
+  "labels": ["dependencies", "renovate"]
+}
