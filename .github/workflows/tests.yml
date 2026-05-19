@@ -30,7 +30,7 @@ jobs:
             test-sessions
           key: sessions-${{ runner.os }}-${{ github.head_ref || github.ref_name }}-${{ hashFiles('noxfile.py', 'commands/list_nox_manifest.py') }}
           restore-keys: |
-            sessions-${{ runner.os }}-main-${{ hashFiles('noxfile.py', 'commands/list_nox_manifest.py') }}
+            sessions-${{ runner.os }}-${{ github.event.repository.default_branch }}-${{ hashFiles('noxfile.py', 'commands/list_nox_manifest.py') }}
       - uses: ./.github/workflows/actions/install_dependencies
       - name: List all format sessions
         if: steps.sessions-cache.outputs.cache-hit != 'true'
