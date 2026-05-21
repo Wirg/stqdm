@@ -40,6 +40,7 @@ mise run compat
 ## How to use
 
 You can run the Streamlit demo app from `demo/app/Home.py`.
+The live deployment is available at [stqdm-demo.streamlit.app](https://stqdm-demo.streamlit.app/).
 
 The demo surface and the behaviors it covers are documented in [demo/FEATURES.md](demo/FEATURES.md).
 
