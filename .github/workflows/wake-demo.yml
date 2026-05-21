@@ -1,0 +1,20 @@
+name: Wake Demo
+
+on:
+  schedule:
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  wake_demo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: GET live Streamlit demo
+        run: >
+          curl --fail --silent --show-error --location
+          --retry 3 --retry-delay 10 --max-time 60
+          --output /dev/null
+          https://stqdm-demo.streamlit.app/
