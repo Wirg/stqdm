@@ -3,24 +3,26 @@ name: Create Release
 on:
   pull_request:
     # Limit to closed PR targeting main and modifying the pyproject.toml
-    types: [ closed ]
-    branches: [ main ]
-    paths: [ pyproject.toml ]
-
-permissions:
-  contents: write
+    types: [closed]
+    branches: [main]
+    paths: [pyproject.toml]
 
 jobs:
-  create-release-build-and-publish:
+  build-release-artifacts:
     # Limit to merged PR that comes from a release/v branch
-    if: (github.event.pull_request.merged == true && startsWith(github.head_ref, 'release/v'))
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'release/v')
     environment: publish
-    name: Create Release, Build & Publish to pypi
+    name: Build and publish GitHub release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.release-data.outputs.version }}
+      prerelease_flag: ${{ steps.check-prerelease.outputs.prerelease_flag }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          token: ${{ secrets.WIRG_PAT_FOR_RELEASE }}
+          fetch-depth: 0
 
       - uses: ./.github/workflows/actions/install_dependencies
 
@@ -30,13 +32,13 @@ jobs:
           export RELEASE="v$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')"
           echo "version=${RELEASE}" >> $GITHUB_OUTPUT
 
-      - name: Build
-        run: uv build
-
       - name: Check Version
         id: check-prerelease
         run: |
           [[ "$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || echo prerelease_flag="--prerelease" >> $GITHUB_OUTPUT
+
+      - name: Build
+        run: uv build
 
       - name: Tag "${{ steps.release-data.outputs.version }}" & Push
         run: |
@@ -46,13 +48,37 @@ jobs:
       - name: Create Release
         run: gh release create ${{ steps.release-data.outputs.version }} --generate-notes ${{ steps.check-prerelease.outputs.prerelease_flag }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Upload artifacts
-        run: |
-          gh release upload ${{ steps.release-data.outputs.version }} dist/*
+        run: gh release upload ${{ steps.release-data.outputs.version }} dist/*
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload distributions for publishing
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-dist
+          path: dist/*
+
+  publish-to-pypi:
+    needs: build-release-artifacts
+    environment: publish
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: ./.github/workflows/actions/install_dependencies
+
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: release-dist
+          path: dist
 
       - name: Publish
-        run: uv publish --token ${{ secrets.PYPI_TOKEN }}
+        run: uv publish --trusted-publishing automatic dist/*
