@@ -10,6 +10,12 @@ stqdm is the simplest way to handle a progress bar in streamlit app.
 
 ![demo gif](https://raw.githubusercontent.com/Wirg/stqdm/main/assets/demo.gif)
 
+## Maintenance Status
+
+STqdm is intentionally small and low-churn, but it is actively maintained for compatibility and security.
+
+The public API is kept close to `tqdm`, supported combinations are tracked in CI, and security reports should be sent privately through [SECURITY.md](SECURITY.md).
+
 ## How to install
 
 ```sh
