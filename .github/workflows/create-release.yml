@@ -2,23 +2,19 @@ name: Create Release
 
 on:
   push:
-    branches: [main]
-    paths: [pyproject.toml]
+    tags:
+      - "v*"
   workflow_dispatch:
 
 jobs:
   build-release-artifacts:
-    # Publish only from main. Automatic runs are limited to release bump commits;
-    # workflow_dispatch is kept as an explicit recovery path for release automation.
-    if: >-
-      github.ref == 'refs/heads/main' &&
-      (github.event_name == 'workflow_dispatch' ||
-      startsWith(github.event.head_commit.message, 'bump: version v'))
-    environment: publish
-    name: Build and publish GitHub release
+    # Releases are driven by maintainer-created v* tags. This keeps protected tag
+    # creation outside CI and lets the workflow verify the tag before publishing.
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+    name: Build and publish GitHub release artifacts
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     outputs:
       version: ${{ steps.release-data.outputs.version }}
       prerelease_flag: ${{ steps.check-prerelease.outputs.prerelease_flag }}
@@ -32,40 +28,32 @@ jobs:
       - name: export release-data
         id: release-data
         run: |
-          export RELEASE="v$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')"
-          echo "version=${RELEASE}" >> $GITHUB_OUTPUT
-
-      - name: Check release tag does not exist
-        run: |
-          if git rev-parse -q --verify "refs/tags/${{ steps.release-data.outputs.version }}" >/dev/null; then
-            echo "Release tag ${{ steps.release-data.outputs.version }} already exists."
+          PACKAGE_VERSION="$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')"
+          RELEASE="v${PACKAGE_VERSION}"
+          if [[ "${GITHUB_REF_NAME}" != "${RELEASE}" ]]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match pyproject.toml version ${PACKAGE_VERSION}."
             exit 1
           fi
+
+          echo "package_version=${PACKAGE_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "version=${RELEASE}" >> "$GITHUB_OUTPUT"
 
       - name: Check Version
         id: check-prerelease
         run: |
-          [[ "$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || echo prerelease_flag="--prerelease" >> $GITHUB_OUTPUT
+          [[ "${{ steps.release-data.outputs.package_version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || echo prerelease_flag="--prerelease" >> "$GITHUB_OUTPUT"
 
       - name: Build
         run: uv build
 
-      - name: Create release app token
-        id: release-app-token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
-        with:
-          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
-          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
-          permission-contents: write
-
       - name: Create GitHub release
         env:
-          GH_TOKEN: ${{ steps.release-app-token.outputs.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           args=(
             "${{ steps.release-data.outputs.version }}"
             dist/*
-            --target "$GITHUB_SHA"
+            --verify-tag
             --generate-notes
           )
           if [[ -n "${{ steps.check-prerelease.outputs.prerelease_flag }}" ]]; then
