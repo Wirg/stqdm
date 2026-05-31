@@ -10,6 +10,8 @@ Security fixes are prioritized for supported versions. Older releases may receiv
 
 Please report suspected vulnerabilities privately through GitHub's "Report a vulnerability" flow in the repository's Security tab.
 
+If GitHub private reporting is unavailable, contact datwiwi@gmail.com.
+
 Do not open a public issue or pull request for a security report.
 
 ## Response Targets
