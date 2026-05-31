@@ -63,7 +63,7 @@ jobs:
           delete-branch: true
 
           # Commit
-          commit-message: "bump to version ${{ steps.release-data.outputs.version }}"
+          commit-message: "bump: version ${{ steps.release-data.outputs.version }}"
           add-paths: |
             ./pyproject.toml
             ./uv.lock
