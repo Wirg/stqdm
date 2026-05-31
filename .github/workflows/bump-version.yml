@@ -19,8 +19,7 @@ on:
           - stable
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   bump-version:
@@ -42,6 +41,15 @@ jobs:
           echo "version=${RELEASE}" >> $GITHUB_OUTPUT
           echo "branch=release/${RELEASE}" >> $GITHUB_OUTPUT
 
+      - name: Create release app token
+        id: release-app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
       - name: Create Pull Request "[Release] ${{ steps.release-data.outputs.version }} => main"
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         id: create-pull-request
@@ -61,11 +69,11 @@ jobs:
             ./uv.lock
 
           # Auth
-          token: ${{ github.token }}
+          token: ${{ steps.release-app-token.outputs.token }}
 
       - name: Auto-merge Pull Request
         uses: peter-evans/enable-pull-request-automerge@a660677d5469627102a1c1e11409dd063606628d # v3.0.0
         with:
-          token: ${{ github.token }}
+          token: ${{ steps.release-app-token.outputs.token }}
           pull-request-number: ${{ steps.create-pull-request.outputs.pull-request-number }}
           merge-method: rebase
