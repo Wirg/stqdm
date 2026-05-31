@@ -11,10 +11,12 @@ on:
           - patch
           - minor
           - major
-          - prerelease
-          - prepatch
-          - preminor
-          - prepatch
+          - alpha
+          - beta
+          - rc
+          - dev
+          - post
+          - stable
 
 permissions:
   contents: read
@@ -30,7 +32,7 @@ jobs:
       - uses: ./.github/workflows/actions/install_dependencies
 
       - name: bump version
-        run: uv run hatch version ${{ github.event.inputs.version }}
+        run: uv version --bump ${{ github.event.inputs.version }}
 
       - name: export release-data
         id: release-data
