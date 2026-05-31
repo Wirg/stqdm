@@ -23,9 +23,18 @@ jobs:
       version: ${{ steps.release-data.outputs.version }}
       prerelease_flag: ${{ steps.check-prerelease.outputs.prerelease_flag }}
     steps:
+      - name: Create release app token
+        id: release-app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+          token: ${{ steps.release-app-token.outputs.token }}
 
       - uses: ./.github/workflows/actions/install_dependencies
 
@@ -58,12 +67,12 @@ jobs:
       - name: Create Release
         run: gh release create ${{ steps.release-data.outputs.version }} --generate-notes ${{ steps.check-prerelease.outputs.prerelease_flag }}
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ steps.release-app-token.outputs.token }}
 
       - name: Upload artifacts
         run: gh release upload ${{ steps.release-data.outputs.version }} dist/*
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ steps.release-app-token.outputs.token }}
 
       - name: Upload distributions for publishing
         uses: actions/upload-artifact@v4
