@@ -1,6 +1,6 @@
 [project]
 name = "stqdm"
-version = "0.1.0"
+version = "0.2.0"
 description = "Easy progress bar for streamlit based on the awesome streamlit.progress and tqdm"
 authors = [{ name = "Wirg", email = "Wirg@users.noreply.github.com" }]
 maintainers = [{ name = "Wirg", email = "Wirg@users.noreply.github.com" }]
