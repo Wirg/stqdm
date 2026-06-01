@@ -46,3 +46,20 @@ def test_scope_manager__use_current_default_if_config_not_provided_with_scopes()
             assert scope_manager.use_current_default_if_config_not_provided({"bar": "hello"}) == {"foo": "bar", "bar": "hello"}
         assert scope_manager.use_current_default_if_config_not_provided({}) == {"foo": "bar", "bar": "foo"}
     assert scope_manager.use_current_default_if_config_not_provided({}) == {"foo": "bar"}
+
+
+def test_scope_manager__nested_scopes_inherit_outer_unset_values():
+    scope_manager = ScopeManager({"foo": "default", "default_only": True})
+
+    with scope_manager.scope({"foo": "outer", "bar": "outer"}):
+        with scope_manager.scope({"bar": "inner"}):
+            assert scope_manager.use_current_default_if_config_not_provided({}) == {
+                "foo": "outer",
+                "bar": "inner",
+                "default_only": True,
+            }
+            assert scope_manager.use_current_default_if_config_not_provided({"foo": "provided"}) == {
+                "foo": "provided",
+                "bar": "inner",
+                "default_only": True,
+            }

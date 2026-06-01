@@ -241,6 +241,18 @@ def test_stqdm_test_scope(mock_st_container, mock_st_empty):
     test_default_stqdm()
 
 
+def test_stqdm_nested_scope_inherits_outer_bar_format():
+    with stqdm.scope(bar_format="{desc}", desc="outer"):
+        with stqdm.scope(frontend=True):
+            stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)
+            for _ in enumerate(stqdmed_iterator):
+                assert_frontend_as_been_called_with(
+                    stqdmed_iterator,
+                    text="outer",
+                    progress=None,
+                )
+
+
 def test_stqdm_default_config_add_description():
     stqdm.set_default_config(bar_format="{desc}", desc="hello")
     stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)

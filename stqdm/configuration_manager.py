@@ -75,14 +75,13 @@ class ScopeManager(Generic[ScopeConfig], metaclass=ABCMeta):  # pylint: disable=
         return {}
 
     def use_current_default_if_config_not_provided(self, config: ScopeConfig) -> ScopeConfig:
-        """Merges the provided configuration with the defaults and the current scope configuration.
+        """Merges the provided configuration with the defaults and active scope configurations.
 
         This is the logic that implements the default merge for configurations.
         The new config is the latest provided values in order:
         - default_config (less important)
-        - latest scope
+        - active scopes, from outermost to innermost
         - current_config (stqdm call params) (most important)
-        It ignores all the intermediary scopes.
 
         Args:
             config (ScopeConfig): The configuration to merge with defaults and current scope.
@@ -90,5 +89,9 @@ class ScopeManager(Generic[ScopeConfig], metaclass=ABCMeta):  # pylint: disable=
         Returns:
             ScopeConfig: The resulting configuration after merging.
         """
-        # This typing is probably wrong, but in our case, we will be using a TypedDict and it should be ok
-        return cast(ScopeConfig, {**self.get_default_config(), **self.get_current_scope_config(), **config})
+        merged_config = dict(self.get_default_config())
+        for scope_config in self._scope_stack:
+            merged_config.update(scope_config)
+        merged_config.update(config)
+        # This typing is probably wrong, but in our case, we will be using a TypedDict and it should be ok.
+        return cast(ScopeConfig, merged_config)

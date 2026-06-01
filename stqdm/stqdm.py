@@ -89,9 +89,8 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         This is the logic that implements the default merge for configurations.
         The new config is the latest provided values in order:
         - default_config (less important)
-        - latest scope
+        - active scopes, from outermost to innermost
         - current_config (stqdm call params) (most important)
-        It ignores all the intermediary scopes.
         If you want to change this behavior, modify this function.
 
         Args:
@@ -118,12 +117,11 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
             ...     stqdm.combine_default_and_provided_kwargs({"desc": "again"})
             {"frontend": False, "backend": True, "desc": "again"}
 
-            Intermediary scopes are ignored. Only the default config, latest scope and provided_config are considered.
-            >>> stqdm.set_default_config(frontend=True)
-            ... with stqdm.scope(frontend=False): # Ignored as it is an intermediary scope
-            ...     with stqdm.scope():
+            Nested scopes inherit values that they do not override.
+            >>> with stqdm.scope(bar_format="{desc}", desc="outer"):
+            ...     with stqdm.scope(desc="inner"):
             ...         stqdm.combine_default_and_provided_kwargs({})
-            {"frontend": True}
+            {"bar_format": "{desc}", "desc": "inner"}
         """
         return cls.scope_stack.use_current_default_if_config_not_provided(config=provided_config)
 
