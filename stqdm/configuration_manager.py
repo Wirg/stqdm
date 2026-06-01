@@ -1,6 +1,6 @@
 from abc import ABCMeta
 from contextlib import contextmanager
-from typing import Any, Generic, Iterator, List, Mapping, TypeVar, cast
+from typing import Any, Generic, Iterator, Mapping, TypeVar, cast
 
 ScopeConfig = TypeVar("ScopeConfig", bound=Mapping[str, Any])
 
@@ -29,8 +29,22 @@ class ScopeManager(Generic[ScopeConfig], metaclass=ABCMeta):  # pylint: disable=
         """
         if not isinstance(default_config, Mapping):
             raise TypeError("Default config is not an instance of Mapping.")
-        self.default_config: ScopeConfig = default_config
-        self._scope_stack: List[ScopeConfig] = []
+        self._default_config: ScopeConfig = self._copy_config(default_config, "Default config")
+        self._scope_stack: list[ScopeConfig] = []
+
+    @staticmethod
+    def _copy_config(config: ScopeConfig, name: str) -> ScopeConfig:
+        if not isinstance(config, Mapping):
+            raise TypeError(f"{name} is not an instance of Mapping.")
+        return cast(ScopeConfig, dict(config))
+
+    @property
+    def default_config(self) -> ScopeConfig:
+        return self.get_default_config()
+
+    @default_config.setter
+    def default_config(self, default_config: ScopeConfig) -> None:
+        self.set_default_config(default_config)
 
     def set_default_config(self, default_config: ScopeConfig) -> None:
         """Sets the default configuration of the ScopeManager.
@@ -38,7 +52,7 @@ class ScopeManager(Generic[ScopeConfig], metaclass=ABCMeta):  # pylint: disable=
         Args:
             default_config (ScopeConfig): The configuration to set as default.
         """
-        self.default_config = default_config
+        self._default_config = self._copy_config(default_config, "Default config")
 
     def get_default_config(self) -> ScopeConfig:
         """Retrieves the current default configuration.
@@ -46,7 +60,7 @@ class ScopeManager(Generic[ScopeConfig], metaclass=ABCMeta):  # pylint: disable=
         Returns:
             ScopeConfig: The default configuration.
         """
-        return self.default_config
+        return cast(ScopeConfig, dict(self._default_config))
 
     @contextmanager
     def scope(self, scope_config: ScopeConfig) -> Iterator[ScopeConfig]:
@@ -58,9 +72,10 @@ class ScopeManager(Generic[ScopeConfig], metaclass=ABCMeta):  # pylint: disable=
         Yields:
             ScopeConfig: The provided configuration.
         """
-        self._scope_stack.append(scope_config)
+        scope_snapshot = self._copy_config(scope_config, "Scope config")
+        self._scope_stack.append(scope_snapshot)
         try:
-            yield scope_config
+            yield cast(ScopeConfig, dict(scope_snapshot))
         finally:
             self._scope_stack.pop()
 
@@ -71,8 +86,8 @@ class ScopeManager(Generic[ScopeConfig], metaclass=ABCMeta):  # pylint: disable=
             ScopeConfig: The active scope configuration if any, otherwise an empty dictionary.
         """
         if self._scope_stack:
-            return self._scope_stack[-1]
-        return {}
+            return cast(ScopeConfig, dict(self._scope_stack[-1]))
+        return cast(ScopeConfig, {})
 
     def use_current_default_if_config_not_provided(self, config: ScopeConfig) -> ScopeConfig:
         """Merges the provided configuration with the defaults and active scope configurations.
@@ -89,7 +104,7 @@ class ScopeManager(Generic[ScopeConfig], metaclass=ABCMeta):  # pylint: disable=
         Returns:
             ScopeConfig: The resulting configuration after merging.
         """
-        merged_config = dict(self.get_default_config())
+        merged_config = dict(self._default_config)
         for scope_config in self._scope_stack:
             merged_config.update(scope_config)
         merged_config.update(config)

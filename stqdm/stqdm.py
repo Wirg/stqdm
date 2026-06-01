@@ -73,7 +73,7 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
     @classmethod
     def set_default_config(cls, /, **config: Unpack[STQDMArgs]) -> None:
         """Sets the default configuration for stqdm instances globally."""
-        cls.scope_stack.default_config = config
+        cls.scope_stack.set_default_config(config)
 
     @classmethod
     @contextmanager
