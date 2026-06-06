@@ -38,6 +38,10 @@ run = "uv run nox -s tests"
 description = "Run formatting and lint checks"
 run = "uv run nox -s ruff_format ruff_check lint"
 
+[tasks.typecheck]
+description = "Run Pyrefly type checks"
+run = "uv run pyrefly check stqdm"
+
 [tasks.build]
 description = "Build package artifacts"
 run = "uv build"
