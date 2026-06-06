@@ -5,7 +5,7 @@ from stqdm.configuration_manager import ScopeManager
 
 def test_scope_manager__get_default_config():
     scope_manager = ScopeManager({})
-    assert scope_manager.get_default_config() == {}
+    assert not scope_manager.get_default_config()
     scope_manager = ScopeManager({"foo": "bar"})
     assert scope_manager.get_default_config() == {"foo": "bar"}
 
@@ -21,7 +21,7 @@ def test_scope_manager__get_default_config_does_not_expose_mutable_internal_conf
 
 def test_scope_manager__set_default_config():
     scope_manager = ScopeManager({})
-    assert scope_manager.get_default_config() == {}
+    assert not scope_manager.get_default_config()
     scope_manager.set_default_config({"foo": "bar"})
     assert scope_manager.get_default_config() == {"foo": "bar"}
     scope_manager.set_default_config({"foo": "baz", "bar": "foo"})
@@ -31,7 +31,7 @@ def test_scope_manager__set_default_config():
 def test_scope_manager__set_default_config_rejects_non_mapping():
     scope_manager = ScopeManager({})
 
-    with pytest.raises(TypeError, match="Default config is not an instance of Mapping"):
+    with pytest.raises(TypeError, match="Config is not an instance of Mapping"):
         scope_manager.set_default_config(["not", "a", "mapping"])
 
 
@@ -46,13 +46,13 @@ def test_scope_manager__default_config_is_not_aliased_to_caller_mapping():
 
 def test_scope_manager__scope():
     scope_manager = ScopeManager({})
-    assert scope_manager.get_current_scope_config() == {}
+    assert not scope_manager.get_current_scope_config()
     with scope_manager.scope({"foo": "bar"}):
         assert scope_manager.get_current_scope_config() == {"foo": "bar"}
         with scope_manager.scope({"foo": "baz"}):
             assert scope_manager.get_current_scope_config() == {"foo": "baz"}
         assert scope_manager.get_current_scope_config() == {"foo": "bar"}
-    assert scope_manager.get_current_scope_config() == {}
+    assert not scope_manager.get_current_scope_config()
 
 
 def test_scope_manager__get_current_scope_config_does_not_expose_mutable_internal_scope():
@@ -68,7 +68,7 @@ def test_scope_manager__get_current_scope_config_does_not_expose_mutable_interna
 def test_scope_manager__scope_rejects_non_mapping():
     scope_manager = ScopeManager({})
 
-    with pytest.raises(TypeError, match="Scope config is not an instance of Mapping"):
+    with pytest.raises(TypeError, match="Config is not an instance of Mapping"):
         with scope_manager.scope(["not", "a", "mapping"]):
             pass
 

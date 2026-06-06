@@ -42,19 +42,19 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
             **kwargs (Unpack[STQDMArgs]): Additional keyword arguments coming either from tqdm or from stqdm.
                 stqdm arguments are st_container, backend, frontend.
         """
-        kwargs = self.combine_default_and_provided_kwargs(provided_config=kwargs)
+        merged_kwargs = self.combine_default_and_provided_kwargs(provided_config=kwargs)
 
-        self.st_container: "DeltaGenerator" = kwargs.pop("st_container", st.container())
-        self._backend: bool = kwargs.pop("backend", False)
-        self._frontend: bool = kwargs.pop("frontend", True)
+        self.st_container: "DeltaGenerator" = merged_kwargs.pop("st_container", st.container())
+        self._backend: bool = merged_kwargs.pop("backend", False)
+        self._frontend: bool = merged_kwargs.pop("frontend", True)
         if not self._backend:
             # Route tqdm's terminal writes to an in-memory sink so close() cannot leak a trailing newline.
-            kwargs["file"] = io.StringIO()
+            merged_kwargs["file"] = io.StringIO()
 
         # Will be set when necessary
         self._st_progress_bar: Optional["DeltaGenerator"] = None
         self._st_text: Optional["DeltaGenerator"] = None
-        frontend_config = self.build_frontend_config_overrides(**kwargs)
+        frontend_config = self.build_frontend_config_overrides(**merged_kwargs)
         self._frontend_ncols: Optional[int] = frontend_config["ncols"]
         self._frontend_bar_format: Optional[str] = frontend_config["bar_format"]
         self.should_display_progress_bar: bool = frontend_config["should_display_progress_bar"]
@@ -62,13 +62,13 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
 
         super().__init__(
             iterable=iterable,
-            **kwargs,
+            **merged_kwargs,
         )
 
     ####
     # STQDM's default arguments handling with the scope manager
     ###
-    scope_stack: ScopeManager[STQDMArgs] = ScopeManager(STQDMArgs())
+    scope_stack: ScopeManager = ScopeManager(STQDMArgs())
 
     @classmethod
     def set_default_config(cls, /, **config: Unpack[STQDMArgs]) -> None:
@@ -77,13 +77,13 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
 
     @classmethod
     @contextmanager
-    def scope(cls, /, **config: Unpack[STQDMArgs]) -> Iterator[STQDMArgs]:
+    def scope(cls, /, **config: Unpack[STQDMArgs]) -> Iterator[dict[str, Any]]:
         """A context manager to temporarily set a scoped configuration for stqdm instances."""
         with cls.scope_stack.scope(config) as scope:
             yield scope
 
     @classmethod
-    def combine_default_and_provided_kwargs(cls, provided_config: STQDMArgs) -> STQDMArgs:
+    def combine_default_and_provided_kwargs(cls, provided_config: STQDMArgs) -> dict[str, Any]:
         """This function combine default of scope stack and provided kwargs.
 
         This is the logic that implements the default merge for configurations.
