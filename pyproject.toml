@@ -37,11 +37,11 @@ dev = [
     "commitizen>=4.16.2",
     "freezegun>=1.5.4",
     "hatch>=1.16.5",
-    "mypy>=2.1.0",
     "nox>=2026.4.10",
     "packaging>=26.0",
     "pre-commit>=4.6.0",
     "pylint>=4.0.5",
+    "pyrefly>=1.0.0",
     "pytest>=9.0.3",
     "pytest-cov>=7.1.0",
     "ruff>=0.15.12",
@@ -58,6 +58,9 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["I"]
+
+[tool.pyrefly]
+project-includes = ["stqdm/**/*.py"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
