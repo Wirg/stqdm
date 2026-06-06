@@ -8,6 +8,7 @@ from freezegun import freeze_time
 from streamlit.testing.v1.app_test import AppTest
 from streamlit.testing.v1.element_tree import Block, Element
 
+from demo.src import demo_apps
 from demo.src.demo_apps import simple_stqdm_in_main, stqdm_bar_format, stqdm_scopes
 
 pytestmark = pytest.mark.demo_app
@@ -100,6 +101,23 @@ def test_single_entrypoint_renders_with_app_test():
         app_test.run(timeout=5)
 
     assert not app_test.exception
+
+
+@pytest.mark.parametrize(
+    "demo_function,expected_progress_bars",
+    [
+        (demo_apps.stqdm_in_columns, 3),
+        (demo_apps.stqdm_multi_bars_in_columns, 3),
+    ],
+)
+def test_column_demos_render_progress_bars(demo_function: Callable[..., None], expected_progress_bars: int):
+    with freeze_time_and_mock_long_running_task("2024-01-01"):
+        app_test = AppTest.from_function(demo_function, kwargs={"iterations": 10, "task_duration": 0.0})
+        app_test.run(timeout=5)
+
+    assert not app_test.exception
+    progress_bars = collect_block_elements(app_test.main, should_take=lambda element: element.type == "progress")
+    assert len(progress_bars) == expected_progress_bars
 
 
 @pytest.mark.parametrize(
