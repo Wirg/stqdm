@@ -88,11 +88,11 @@ def test_progress(stop_iterations: int, total_iterations: int, task_duration: fl
         task_duration_time = datetime.timedelta(seconds=task_duration)
         elapsed = str(stop_iterations * task_duration_time)[-5:]
         remaining = str((total_iterations - stop_iterations) * task_duration_time)[-5:]
-        assert (
-            progress_bars[0].text
-            # pylint: disable=line-too-long
-            == f"{stop_iterations / total_iterations:.0%} {stop_iterations}/{total_iterations} [{elapsed}<{remaining},  {task_duration:.2f}s/it]"
+        expected_progress_text = (
+            f"{stop_iterations / total_iterations:.0%} {stop_iterations}/{total_iterations} "
+            f"[{elapsed}<{remaining},  {task_duration:.2f}s/it]"
         )
+        assert progress_bars[0].text == expected_progress_text
 
 
 def test_single_entrypoint_renders_with_app_test():
