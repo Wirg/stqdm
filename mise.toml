@@ -26,6 +26,14 @@ run = "uv run nox -s commitlint"
 description = "Run the pytest suite"
 run = "uv run pytest"
 
+[tasks.browser-install]
+description = "Install the Chromium browser used by Playwright smoke tests"
+run = "uv run playwright install chromium"
+
+[tasks.browser-smoke]
+description = "Run the Streamlit browser smoke tests"
+run = "uv run pytest -m browser_smoke tests/test_streamlit_browser.py"
+
 [tasks.nox-list]
 description = "List nox compatibility sessions"
 run = "uv run nox --list"
