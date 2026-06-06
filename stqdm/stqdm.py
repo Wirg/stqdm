@@ -1,7 +1,7 @@
 import io
 import re
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Iterable, Iterator, Optional, cast
+from typing import TYPE_CHECKING, Any, Generator, Iterable, Optional, cast
 
 import streamlit as st
 from packaging import version
@@ -77,7 +77,7 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
 
     @classmethod
     @contextmanager
-    def scope(cls, /, **config: Unpack[STQDMArgs]) -> Iterator[dict[str, Any]]:
+    def scope(cls, /, **config: Unpack[STQDMArgs]) -> Generator[dict[str, Any], None, None]:
         """A context manager to temporarily set a scoped configuration for stqdm instances."""
         with cls.scope_stack.scope(config) as scope:
             yield scope
@@ -164,7 +164,6 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         can_display_progress_bar = total is not None and total > 0
 
         if can_display_progress_bar and self.should_display_progress_bar:
-            total = cast(float, total)  # total is not None
             progress = min(max(n / total, 0.0), 1.0)
             if not can_display_text:
                 self.st_progress_bar.progress(progress)
@@ -177,14 +176,12 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
             if can_display_text:
                 self.st_text.write(meter_text)
 
-    def display(self, msg=None, pos=None) -> bool:  # type: ignore[override]
+    def display(self, msg: str | None = None, pos: int | None = None) -> Any:
         """Overrides the tqdm display method to include frontend and backend logic.
 
         Frontend refers to streamlit web interface.
         Backend refers to streamlit server logs.
         """
-        # TODO: for a weird reason, display is type -> None in the stubs but it is not in the code
-        # TODO: check if we should return True or something related to what happened in backend
         if self._backend:
             super().display(msg, pos)
         if self._frontend:

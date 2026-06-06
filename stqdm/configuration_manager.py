@@ -1,6 +1,6 @@
 from abc import ABCMeta
 from contextlib import contextmanager
-from typing import Any, Iterator, Mapping
+from typing import Any, Generator, Mapping
 
 ConfigMapping = Mapping[str, Any]
 Config = dict[str, Any]
@@ -62,7 +62,7 @@ class ScopeManager(metaclass=ABCMeta):  # pylint: disable=invalid-name
         return dict(self._default_config)
 
     @contextmanager
-    def scope(self, scope_config: ConfigMapping) -> Iterator[Config]:
+    def scope(self, scope_config: ConfigMapping) -> Generator[Config, None, None]:
         """A context manager that temporarily adds a new configuration to the stack.
 
         Args:
