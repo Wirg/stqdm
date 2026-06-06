@@ -241,6 +241,103 @@ def test_stqdm_test_scope(mock_st_container, mock_st_empty):
     test_default_stqdm()
 
 
+def test_stqdm_nested_scope_inherits_outer_bar_format():
+    with stqdm.scope(bar_format="{desc}", desc="outer"):
+        with stqdm.scope(frontend=True):
+            stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)
+            for _ in enumerate(stqdmed_iterator):
+                assert_frontend_as_been_called_with(
+                    stqdmed_iterator,
+                    text="outer",
+                    progress=None,
+                )
+
+
+def test_stqdm_nested_scope_explicit_none_resets_outer_bar_format(mock_st_empty, mock_st_container):
+    with stqdm.scope(bar_format="{desc}", desc="outer"):
+        with stqdm.scope(bar_format=None):
+            stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)
+            for i, _ in enumerate(stqdmed_iterator):
+                assert_frontend_as_been_called_with(
+                    stqdmed_iterator,
+                    text=tqdm.format_meter(**{**stqdmed_iterator.format_dict, "ncols": 0}),
+                    progress=i / len(stqdmed_iterator),
+                )
+
+    mock_st_empty.reset_mock()
+    mock_st_container.reset_mock()
+    test_default_stqdm()
+
+
+def test_stqdm_nested_scope_empty_bar_format_hides_text_but_keeps_bar(mock_st_empty, mock_st_container):
+    with stqdm.scope(bar_format="{desc}", desc="outer"):
+        with stqdm.scope(bar_format=""):
+            stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)
+            for i, _ in enumerate(stqdmed_iterator):
+                assert_frontend_as_been_called_with(
+                    stqdmed_iterator,
+                    text=None,
+                    progress=i / len(stqdmed_iterator),
+                )
+
+    mock_st_empty.reset_mock()
+    mock_st_container.reset_mock()
+    test_default_stqdm()
+
+
+def test_stqdm_call_kwargs_override_nested_scope_with_none(mock_st_empty, mock_st_container):
+    with stqdm.scope(bar_format="{desc}", desc="outer"):
+        with stqdm.scope(desc="inner"):
+            stqdmed_iterator = stqdm(range(2), bar_format=None, **TQDM_RUN_EVERY_ITERATION)
+            for i, _ in enumerate(stqdmed_iterator):
+                assert_frontend_as_been_called_with(
+                    stqdmed_iterator,
+                    text=tqdm.format_meter(**{**stqdmed_iterator.format_dict, "ncols": 0}),
+                    progress=i / len(stqdmed_iterator),
+                )
+
+    mock_st_empty.reset_mock()
+    mock_st_container.reset_mock()
+    test_default_stqdm()
+
+
+def test_stqdm_three_nested_scopes_merge_outer_to_inner(mock_st_empty, mock_st_container):
+    with stqdm.scope(bar_format="{desc}", desc="outer", frontend=True):
+        with stqdm.scope(desc="middle"):
+            with stqdm.scope(backend=False):
+                stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)
+                for _ in enumerate(stqdmed_iterator):
+                    assert_frontend_as_been_called_with(
+                        stqdmed_iterator,
+                        text="middle",
+                        progress=None,
+                    )
+
+    mock_st_empty.reset_mock()
+    mock_st_container.reset_mock()
+    test_default_stqdm()
+
+
+def test_stqdm_arbitrary_tqdm_kwargs_inherit_through_nested_scopes():
+    with stqdm.scope(unit="items", dynamic_ncols=True):
+        with stqdm.scope(desc="inner"):
+            assert stqdm.combine_default_and_provided_kwargs({}) == {
+                "unit": "items",
+                "dynamic_ncols": True,
+                "desc": "inner",
+            }
+
+
+def test_stqdm_inner_frontend_override_keeps_outer_format_values():
+    with stqdm.scope(bar_format="{desc}", desc="outer", frontend=True):
+        with stqdm.scope(frontend=False):
+            assert stqdm.combine_default_and_provided_kwargs({}) == {
+                "bar_format": "{desc}",
+                "desc": "outer",
+                "frontend": False,
+            }
+
+
 def test_stqdm_default_config_add_description():
     stqdm.set_default_config(bar_format="{desc}", desc="hello")
     stqdmed_iterator = stqdm(range(2), **TQDM_RUN_EVERY_ITERATION)

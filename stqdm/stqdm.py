@@ -1,7 +1,7 @@
 import io
 import re
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Iterable, Iterator, Optional, cast
+from typing import TYPE_CHECKING, Any, Generator, Iterable, Optional, cast
 
 import streamlit as st
 from packaging import version
@@ -42,19 +42,19 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
             **kwargs (Unpack[STQDMArgs]): Additional keyword arguments coming either from tqdm or from stqdm.
                 stqdm arguments are st_container, backend, frontend.
         """
-        kwargs = self.combine_default_and_provided_kwargs(provided_config=kwargs)
+        merged_kwargs = self.combine_default_and_provided_kwargs(provided_config=kwargs)
 
-        self.st_container: "DeltaGenerator" = kwargs.pop("st_container", st.container())
-        self._backend: bool = kwargs.pop("backend", False)
-        self._frontend: bool = kwargs.pop("frontend", True)
+        self.st_container: "DeltaGenerator" = merged_kwargs.pop("st_container", st.container())
+        self._backend: bool = merged_kwargs.pop("backend", False)
+        self._frontend: bool = merged_kwargs.pop("frontend", True)
         if not self._backend:
             # Route tqdm's terminal writes to an in-memory sink so close() cannot leak a trailing newline.
-            kwargs["file"] = io.StringIO()
+            merged_kwargs["file"] = io.StringIO()
 
         # Will be set when necessary
         self._st_progress_bar: Optional["DeltaGenerator"] = None
         self._st_text: Optional["DeltaGenerator"] = None
-        frontend_config = self.build_frontend_config_overrides(**kwargs)
+        frontend_config = self.build_frontend_config_overrides(**merged_kwargs)
         self._frontend_ncols: Optional[int] = frontend_config["ncols"]
         self._frontend_bar_format: Optional[str] = frontend_config["bar_format"]
         self.should_display_progress_bar: bool = frontend_config["should_display_progress_bar"]
@@ -62,7 +62,7 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
 
         super().__init__(
             iterable=iterable,
-            **kwargs,
+            **merged_kwargs,
         )
 
     ####
@@ -73,11 +73,11 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
     @classmethod
     def set_default_config(cls, /, **config: Unpack[STQDMArgs]) -> None:
         """Sets the default configuration for stqdm instances globally."""
-        cls.scope_stack.default_config = config
+        cls.scope_stack.set_default_config(config)
 
     @classmethod
     @contextmanager
-    def scope(cls, /, **config: Unpack[STQDMArgs]) -> Iterator[STQDMArgs]:
+    def scope(cls, /, **config: Unpack[STQDMArgs]) -> Generator[STQDMArgs, None, None]:
         """A context manager to temporarily set a scoped configuration for stqdm instances."""
         with cls.scope_stack.scope(config) as scope:
             yield scope
@@ -89,9 +89,8 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         This is the logic that implements the default merge for configurations.
         The new config is the latest provided values in order:
         - default_config (less important)
-        - latest scope
+        - active scopes, from outermost to innermost
         - current_config (stqdm call params) (most important)
-        It ignores all the intermediary scopes.
         If you want to change this behavior, modify this function.
 
         Args:
@@ -118,12 +117,11 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
             ...     stqdm.combine_default_and_provided_kwargs({"desc": "again"})
             {"frontend": False, "backend": True, "desc": "again"}
 
-            Intermediary scopes are ignored. Only the default config, latest scope and provided_config are considered.
-            >>> stqdm.set_default_config(frontend=True)
-            ... with stqdm.scope(frontend=False): # Ignored as it is an intermediary scope
-            ...     with stqdm.scope():
+            Nested scopes inherit values that they do not override.
+            >>> with stqdm.scope(bar_format="{desc}", desc="outer"):
+            ...     with stqdm.scope(desc="inner"):
             ...         stqdm.combine_default_and_provided_kwargs({})
-            {"frontend": True}
+            {"bar_format": "{desc}", "desc": "inner"}
         """
         return cls.scope_stack.use_current_default_if_config_not_provided(config=provided_config)
 
