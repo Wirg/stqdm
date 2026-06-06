@@ -17,7 +17,7 @@ def flag_pair_merge_func_with_no_noxfile(
     enable_name: str,
     disable_name: str,
     command_args: Namespace,
-    noxfile_args: Namespace,  # pylint: disable=unused-argument
+    _noxfile_args: Namespace,
 ) -> bool:
     """Merge function for flag pairs. If the flag is set in the Noxfile or
     the command line params, return ``True`` *unless* the disable flag has been
