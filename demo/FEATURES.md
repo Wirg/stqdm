@@ -25,6 +25,7 @@ This page lists the main `stqdm` behaviors we want the Streamlit demo app and te
 ## Integration Patterns
 
 - Stop-and-retry comparison with plain Streamlit widgets
+- Async iteration and `asyncio.gather()`
 - `stqdm.pandas()`
 - Caching plus batched processing
 - Session-state lock reuse
@@ -43,5 +44,6 @@ This page lists the main `stqdm` behaviors we want the Streamlit demo app and te
 - Nested bar cleanup
 - Configuration isolation
 - Pandas hook behavior
+- Async iteration and async gather behavior
 - Patching behavior
 - A small set of full app navigation checks

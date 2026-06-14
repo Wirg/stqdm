@@ -1,7 +1,8 @@
 import io
 import re
+from collections.abc import AsyncIterator, Iterable
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Generator, Iterable, Optional, cast
+from typing import TYPE_CHECKING, Any, Generator, Optional, cast
 
 import streamlit as st
 from packaging import version
@@ -32,7 +33,7 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
 
     def __init__(
         self,
-        iterable: Optional[Iterable] = None,
+        iterable: Optional[Iterable[Any] | AsyncIterator[Any]] = None,
         **kwargs: Unpack[STQDMArgs],
     ) -> None:  # pylint: disable=too-many-arguments,too-many-locals
         """Initializes stqdm with an iterable and optional arguments that define the behavior and display of the progress bar.
