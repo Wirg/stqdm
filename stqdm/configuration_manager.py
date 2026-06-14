@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from contextvars import ContextVar
 from typing import Any, Generic, Iterator, Mapping, TypeVar, cast
 
 Config = TypeVar("Config", bound=Mapping[str, Any])
@@ -29,7 +30,7 @@ class ScopeManager(Generic[Config]):
         if not isinstance(default_config, Mapping):
             raise TypeError("Config is not an instance of Mapping.")
         self._default_config = cast(Config, dict(default_config))
-        self._scope_stack: list[Config] = []
+        self._scope_stack: ContextVar[tuple[dict[str, Any], ...]] = ContextVar("scope_stack", default=())
 
     def set_default_config(self, default_config: Config) -> None:
         """Sets the default configuration of the ScopeManager.
@@ -62,11 +63,12 @@ class ScopeManager(Generic[Config]):
         if not isinstance(scope_config, Mapping):
             raise TypeError("Config is not an instance of Mapping.")
         scope_snapshot = cast(Config, dict(scope_config))
-        self._scope_stack.append(scope_snapshot)
+        current_stack = self._scope_stack.get()
+        scope_token = self._scope_stack.set((*current_stack, cast(dict[str, Any], scope_snapshot)))
         try:
             yield scope_snapshot
         finally:
-            self._scope_stack.pop()
+            self._scope_stack.reset(scope_token)
 
     def get_current_scope_config(self) -> Config:
         """Retrieves the configuration of the current scope.
@@ -74,8 +76,9 @@ class ScopeManager(Generic[Config]):
         Returns:
             Config: The active scope configuration if any, otherwise an empty dictionary.
         """
-        if self._scope_stack:
-            return self._scope_stack[-1]
+        current_stack = self._scope_stack.get()
+        if current_stack:
+            return cast(Config, current_stack[-1])
         return cast(Config, {})
 
     def use_current_default_if_config_not_provided(self, config: Config) -> Config:
@@ -94,7 +97,7 @@ class ScopeManager(Generic[Config]):
             Config: The resulting configuration after merging.
         """
         merged_config = dict(self._default_config)
-        for scope_config in self._scope_stack:
+        for scope_config in self._scope_stack.get():
             merged_config.update(scope_config)
         merged_config.update(config)
         return cast(Config, merged_config)
