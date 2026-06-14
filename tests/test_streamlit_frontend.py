@@ -1,3 +1,4 @@
+import asyncio
 from datetime import timedelta
 from typing import Optional
 from unittest.mock import MagicMock, patch
@@ -6,6 +7,10 @@ import pytest
 from freezegun import freeze_time
 from tqdm import tqdm
 
+from stqdm import astqdm
+from stqdm import tqdm as package_tqdm
+from stqdm.asyncio import stqdm_asyncio
+from stqdm.auto import tqdm as auto_tqdm
 from stqdm.stqdm import IS_TEXT_INSIDE_PROGRESS_AVAILABLE, stqdm
 
 TQDM_RUN_EVERY_ITERATION = {
@@ -13,6 +18,22 @@ TQDM_RUN_EVERY_ITERATION = {
     "miniters": 0,
 }
 DESCRIPTION = "progress_bar_description"
+
+
+class AsyncRange:
+    def __init__(self, total: int):
+        self.total = total
+        self.index = 0
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        if self.index >= self.total:
+            raise StopAsyncIteration
+        value = self.index
+        self.index += 1
+        return value
 
 
 @pytest.fixture(autouse=True, name="mock_st_empty")
@@ -347,3 +368,91 @@ def test_stqdm_default_config_add_description():
             text="hello",
             progress=None,
         )
+
+
+def test_astqdm_alias_points_to_async_entrypoint():
+    assert astqdm is stqdm_asyncio
+
+
+def test_auto_alias_points_to_async_entrypoint():
+    assert auto_tqdm is stqdm_asyncio
+
+
+def test_package_root_tqdm_alias_points_to_async_entrypoint():
+    assert package_tqdm is stqdm_asyncio
+
+
+@pytest.mark.parametrize("iterable_factory", [lambda: range(2), lambda: AsyncRange(2)])
+def test_stqdm_asyncio_supports_sync_and_async_iterables(iterable_factory):
+    async def consume():
+        stqdmed_iterator = stqdm_asyncio(iterable_factory(), total=2, **TQDM_RUN_EVERY_ITERATION)
+        seen = []
+        index = 0
+        async for item in stqdmed_iterator:
+            seen.append(item)
+            assert_frontend_as_been_called_with(
+                stqdmed_iterator,
+                text=tqdm.format_meter(**{**stqdmed_iterator.format_dict, "ncols": 0}),
+                progress=(index + 1) / len(stqdmed_iterator),
+            )
+            index += 1
+        return seen
+
+    assert asyncio.run(consume()) == [0, 1]
+
+
+def test_stqdm_asyncio_as_completed_uses_progress_bar():
+    async def collect():
+        async def delayed_result(value: int, delay: float) -> int:
+            await asyncio.sleep(delay)
+            return value
+
+        tasks = [delayed_result(1, 0.02), delayed_result(2, 0.01)]
+        return [await future for future in stqdm_asyncio.as_completed(tasks, total=2, **TQDM_RUN_EVERY_ITERATION)]
+
+    with patch.object(stqdm_asyncio, "st_display") as st_display_mock:
+        assert asyncio.run(collect()) == [2, 1]
+
+    st_display_mock.assert_called()
+
+
+def test_stqdm_asyncio_supports_dual_protocol_iterables():
+    class DualProtocolIterator:
+        def __init__(self, values):
+            self.values = iter(values)
+
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            return next(self.values)
+
+        def __aiter__(self):
+            return self
+
+        async def __anext__(self):
+            return next(self.values)
+
+    async def consume():
+        return [item async for item in stqdm_asyncio(DualProtocolIterator([0, 1]), total=2, **TQDM_RUN_EVERY_ITERATION)]
+
+    assert asyncio.run(consume()) == [0, 1]
+
+
+def test_stqdm_asyncio_gather_returns_results_in_input_order():
+    async def collect():
+        async def delayed_result(value: int, delay: float) -> int:
+            await asyncio.sleep(delay)
+            return value
+
+        return await stqdm_asyncio.gather(
+            delayed_result(1, 0.02),
+            delayed_result(2, 0.01),
+            total=2,
+            **TQDM_RUN_EVERY_ITERATION,
+        )
+
+    with patch.object(stqdm_asyncio, "st_display") as st_display_mock:
+        assert asyncio.run(collect()) == [1, 2]
+
+    st_display_mock.assert_called()

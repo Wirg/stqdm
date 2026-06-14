@@ -144,6 +144,13 @@ DEMO_PAGES: tuple[DemoPage, ...] = (
     ),
     DemoPage(
         section="Patterns",
+        title="Async progress patterns",
+        description="Use `stqdm` with async iteration and `asyncio.gather()`.",
+        function=demo_apps.stqdm_asyncio_patterns,
+        kwargs={"iterations": 5, "task_duration": 0.5},
+    ),
+    DemoPage(
+        section="Patterns",
         title="Pandas integration",
         description="Use `stqdm.pandas()` with a pandas `Series`.",
         function=demo_apps.stqdm_pandas,

@@ -95,6 +95,25 @@ pd.Series(range(50)).progress_map(lambda x: sleep(1))
 pd.Dataframe({"a": range(50)}).progress_apply(lambda x: sleep(1), axis=1)
 ```
 
+### Use STqdm with asyncio
+
+The async entrypoint lives in `stqdm.asyncio`. For a shorter convenience import, use `stqdm.auto`.
+
+```python
+import asyncio
+from stqdm.auto import tqdm
+
+
+async def main():
+    async for item in tqdm(range(10), desc="Async loop"):
+        await asyncio.sleep(0.5)
+
+
+asyncio.run(main())
+```
+
+`stqdm.asyncio.stqdm_asyncio.as_completed(...)` and `stqdm.asyncio.stqdm_asyncio.gather(...)` follow the same pattern as `tqdm.asyncio`.
+
 ### Display the progress bar only in the frontend or the backend
 
 ```python

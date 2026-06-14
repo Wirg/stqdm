@@ -9,7 +9,7 @@ from streamlit.testing.v1.app_test import AppTest
 from streamlit.testing.v1.element_tree import Block, Element
 
 from demo.src import demo_apps
-from demo.src.demo_apps import simple_stqdm_in_main, stqdm_bar_format, stqdm_scopes
+from demo.src.demo_apps import simple_stqdm_in_main, stqdm_asyncio_patterns, stqdm_bar_format, stqdm_scopes
 
 pytestmark = pytest.mark.demo_app
 
@@ -193,3 +193,16 @@ def test_issue_98_two_stqdm_instances_survive_reruns():
     assert not app_test.exception
     progress_bars = collect_block_elements(app_test.main, should_take=lambda element: element.type == "progress")
     assert len(progress_bars) >= 1
+
+
+def test_asyncio_demo_renders_and_completes():
+    app_test = AppTest.from_function(stqdm_asyncio_patterns, kwargs={"iterations": 3, "task_duration": 0.0})
+    app_test.run(timeout=5)
+
+    assert not app_test.exception
+    progress_bars = collect_block_elements(app_test.main, should_take=lambda element: element.type == "progress")
+    assert len(progress_bars) >= 2
+    assert any(
+        "Async progress complete" in str(getattr(element, "text", None) or getattr(element, "value", ""))
+        for element in collect_block_elements(app_test.main, should_take=lambda element: element.type == "markdown")
+    )

@@ -216,6 +216,37 @@ def stqdm_last_print_t_bug(iterations: int = 10, task_duration: float = 0.01) ->
         demo_apps.long_running_task(task_duration)
 
 
+def stqdm_asyncio_patterns(iterations: int = 5, task_duration: float = 0.5) -> None:
+    """Use STqdm with async iteration and asyncio.gather."""
+    import asyncio
+
+    import streamlit as st
+    from stqdm.asyncio import stqdm_asyncio
+
+    async def async_source():
+        for index in range(iterations):
+            await asyncio.sleep(task_duration)
+            yield index
+
+    async def async_job(index: int) -> int:
+        await asyncio.sleep(task_duration)
+        return index * 2
+
+    async def run_async_work() -> tuple[list[int], list[int]]:
+        async_items: list[int] = []
+        async for item in stqdm_asyncio(async_source(), desc="Async loop", total=iterations):
+            async_items.append(item)
+
+        gathered = await stqdm_asyncio.gather(
+            *(async_job(index) for index in range(iterations)),
+            desc="Async gather",
+        )
+        return async_items, gathered
+
+    async_items, gathered = asyncio.run(run_async_work())
+    st.markdown(f"Async progress complete: loop={async_items}, gather={gathered}")
+
+
 def stqdm_stop_and_retry(iterations: int = 10, task_duration: float = 0.01) -> None:
     """Show a plain Streamlit progress pattern used to compare stop-and-retry behavior."""
     import streamlit as st
