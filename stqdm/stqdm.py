@@ -1,7 +1,7 @@
 import io
-import re
 from collections.abc import AsyncIterator, Iterable
 from contextlib import contextmanager
+from string import Formatter
 from typing import TYPE_CHECKING, Any, Generator, Optional, cast
 
 import streamlit as st
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from streamlit.delta_generator import DeltaGenerator
 
 IS_TEXT_INSIDE_PROGRESS_AVAILABLE = version.parse(st.__version__) >= version.parse("1.18.0")
-BAR_FORMAT_REGEX = re.compile(r"\{bar(?:[:!][a-zA-Z0-9]+){,2}}")
+FORMATTER = Formatter()
 
 
 class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
@@ -262,10 +262,8 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
             should_display_progress_bar = True
             should_display_text = False
         else:
-            original_bar_format = bar_format
             # {bar:size} defines the bar + its size (default 10)
-            bar_format = re.sub(BAR_FORMAT_REGEX, "", bar_format)
-            should_display_progress_bar = bar_format != original_bar_format
+            bar_format, should_display_progress_bar = stqdm._remove_bar_from_format(bar_format)
             should_display_text = bool(bar_format.strip())
         return {
             # ncols should not impact text of stqdm's frontend
@@ -279,4 +277,34 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
     @staticmethod
     def remove_bar_from_format(bar_format: str) -> str:
         """Remove tqdm's terminal bar placeholder from text shown in Streamlit."""
-        return re.sub(BAR_FORMAT_REGEX, "", bar_format)
+        barless_format, _ = stqdm._remove_bar_from_format(bar_format)
+        return barless_format
+
+    @staticmethod
+    def _remove_bar_from_format(bar_format: str) -> tuple[str, bool]:
+        """Return text without tqdm's bar placeholder and whether one was present."""
+        has_bar = False
+        barless_format = []
+        for literal_text, field_name, format_spec, conversion in FORMATTER.parse(bar_format):
+            # Formatter normalizes some fields, so detect the bar placeholder separately.
+            is_bar_placeholder = field_name == "bar" and conversion is None
+            has_bar = has_bar or is_bar_placeholder
+            barless_format.append(stqdm._format_barless_part(literal_text, field_name, format_spec, conversion))
+        return "".join(barless_format), has_bar
+
+    @staticmethod
+    def _format_barless_part(
+        literal_text: str,
+        field_name: str | None,
+        format_spec: str | None,
+        conversion: str | None,
+    ) -> str:
+        literal_text = literal_text.replace("{", "{{").replace("}", "}}")
+        if field_name is None:
+            return literal_text
+        if field_name == "bar" and conversion is None:
+            return literal_text
+
+        conversion_text = f"!{conversion}" if conversion is not None else ""
+        format_spec_text = f":{format_spec}" if format_spec else ""
+        return f"{literal_text}{{{field_name}{conversion_text}{format_spec_text}}}"
