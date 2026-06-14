@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.2.1
+
+### Fixed
+- Inherited scoped `stqdm` configuration across nested scopes.
+
 ### Security
 - Hardened GitHub Actions permissions for CI and release workflows.
 - Tightened the shared `.nox` cache key to avoid reusing incompatible environments.
