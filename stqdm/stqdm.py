@@ -45,7 +45,7 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
         """
         merged_kwargs = self.combine_default_and_provided_kwargs(provided_config=kwargs)
 
-        self.st_container: "DeltaGenerator" = merged_kwargs.pop("st_container", st.container())
+        self._st_container: Optional["DeltaGenerator"] = merged_kwargs.pop("st_container", None)
         self._backend: bool = merged_kwargs.pop("backend", False)
         self._frontend: bool = merged_kwargs.pop("frontend", True)
         if not self._backend:
@@ -129,6 +129,17 @@ class stqdm(tqdm):  # pylint: disable=invalid-name,inconsistent-mro
     ###
     # Internal Functions
     ###
+
+    @property
+    def st_container(self) -> "DeltaGenerator":
+        """Lazily creates and returns the Streamlit container used by frontend rendering."""
+        if self._st_container is None:
+            self._st_container = st.container()
+        return self._st_container
+
+    @st_container.setter
+    def st_container(self, value: "DeltaGenerator") -> None:
+        self._st_container = value
 
     @property
     def st_progress_bar(self) -> "DeltaGenerator":
