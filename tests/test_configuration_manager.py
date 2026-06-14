@@ -1,3 +1,7 @@
+import asyncio
+import threading
+import time
+
 import pytest
 
 from stqdm.configuration_manager import ScopeManager
@@ -290,3 +294,75 @@ def test_scope_manager__scope_restores_previous_context_after_exception():
         pass
 
     assert scope_manager.use_current_default_if_config_not_provided({}) == {"foo": "default"}
+
+
+def test_scope_manager__asyncio_tasks_keep_scopes_isolated():
+    scope_manager = ScopeManager({"shared": "default"})
+    outer_scope_entered = asyncio.Event()
+    inner_scope_active = asyncio.Event()
+
+    async def outer_task():
+        with scope_manager.scope({"desc": "outer"}):
+            outer_scope_entered.set()
+            await inner_scope_active.wait()
+            return scope_manager.use_current_default_if_config_not_provided({})
+
+    async def inner_task():
+        await outer_scope_entered.wait()
+        with scope_manager.scope({"desc": "inner"}):
+            inner_scope_active.set()
+            await asyncio.sleep(0)
+            return scope_manager.use_current_default_if_config_not_provided({})
+
+    async def run_tasks():
+        return await asyncio.gather(outer_task(), inner_task())
+
+    outer_result, inner_result = asyncio.run(run_tasks())
+
+    assert outer_result == {"shared": "default", "desc": "outer"}
+    assert inner_result == {"shared": "default", "desc": "inner"}
+
+
+def test_scope_manager__threads_keep_scopes_isolated():
+    scope_manager = ScopeManager({"shared": "default"})
+    outer_scope_entered = threading.Event()
+    inner_scope_active = threading.Event()
+    results: dict[str, dict[str, str]] = {}
+
+    def outer_worker():
+        with scope_manager.scope({"desc": "outer"}):
+            outer_scope_entered.set()
+            inner_scope_active.wait(timeout=1)
+            results["outer"] = scope_manager.use_current_default_if_config_not_provided({})
+
+    def inner_worker():
+        outer_scope_entered.wait(timeout=1)
+        with scope_manager.scope({"desc": "inner"}):
+            inner_scope_active.set()
+            time.sleep(0.01)
+            results["inner"] = scope_manager.use_current_default_if_config_not_provided({})
+
+    outer_thread = threading.Thread(target=outer_worker)
+    inner_thread = threading.Thread(target=inner_worker)
+    outer_thread.start()
+    inner_thread.start()
+    outer_thread.join()
+    inner_thread.join()
+
+    assert results["outer"] == {"shared": "default", "desc": "outer"}
+    assert results["inner"] == {"shared": "default", "desc": "inner"}
+
+
+def test_scope_manager__child_thread_does_not_inherit_parent_active_scope():
+    scope_manager = ScopeManager({"shared": "default"})
+    result: dict[str, str] = {}
+
+    def worker():
+        result.update(scope_manager.use_current_default_if_config_not_provided({}))
+
+    with scope_manager.scope({"frontend": False, "desc": "outer"}):
+        thread = threading.Thread(target=worker)
+        thread.start()
+        thread.join()
+
+    assert result == {"shared": "default"}
