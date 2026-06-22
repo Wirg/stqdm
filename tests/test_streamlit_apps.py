@@ -28,6 +28,17 @@ def collect_block_elements(block: Block, should_take: Callable[[Element], bool])
     return results
 
 
+def collect_blocks(block: Block, should_take: Callable[[Block], bool]) -> list[Block]:
+    children = block.children.values()
+    results: list[Block] = []
+    for child in children:
+        if isinstance(child, Block):
+            if should_take(child):
+                results.append(child)
+            results.extend(collect_blocks(child, should_take))
+    return results
+
+
 @contextlib.contextmanager
 def freeze_time_and_mock_long_running_task(original_date: str):
     """A context manager that uses freezegun to freeze time and mock the long_running_task function."""
@@ -67,6 +78,50 @@ for _ in stqdm(range(2)):
 
 for _ in stqdm(range(2)):
     pass
+"""
+
+
+SIDEBAR_CONTAINER_SCRIPT = """
+import streamlit as st
+from stqdm import stqdm
+
+st.write("main-before")
+for _ in stqdm(range(2), st_container=st.sidebar):
+    pass
+st.write("main-after")
+"""
+
+
+FRONTEND_DISABLED_SCRIPT = """
+import streamlit as st
+from stqdm import stqdm
+
+st.write("main-before")
+for _ in stqdm(range(2), frontend=False):
+    pass
+st.write("main-after")
+"""
+
+
+DISABLED_SCRIPT = """
+import streamlit as st
+from stqdm import stqdm
+
+st.write("main-before")
+for _ in stqdm(range(2), disable=True):
+    pass
+st.write("main-after")
+"""
+
+
+DELAYED_SCRIPT = """
+import streamlit as st
+from stqdm import stqdm
+
+st.write("main-before")
+for _ in stqdm(range(2), delay=999):
+    pass
+st.write("main-after")
 """
 
 
@@ -193,6 +248,40 @@ def test_issue_98_two_stqdm_instances_survive_reruns():
     assert not app_test.exception
     progress_bars = collect_block_elements(app_test.main, should_take=lambda element: element.type == "progress")
     assert len(progress_bars) >= 1
+
+
+def test_sidebar_container_does_not_create_unused_main_container():
+    app_test = AppTest.from_string(SIDEBAR_CONTAINER_SCRIPT)
+    app_test.run(timeout=5)
+
+    assert not app_test.exception
+    main_containers = collect_blocks(app_test.main, should_take=lambda block: block.type == "flex_container")
+    sidebar_progress_bars = collect_block_elements(app_test.sidebar, should_take=lambda element: element.type == "progress")
+    assert not main_containers
+    assert len(sidebar_progress_bars) == 1
+
+
+def test_frontend_disabled_does_not_create_unused_main_container():
+    app_test = AppTest.from_string(FRONTEND_DISABLED_SCRIPT)
+    app_test.run(timeout=5)
+
+    assert not app_test.exception
+    main_containers = collect_blocks(app_test.main, should_take=lambda block: block.type == "flex_container")
+    progress_bars = collect_block_elements(app_test.main, should_take=lambda element: element.type == "progress")
+    assert not main_containers
+    assert not progress_bars
+
+
+@pytest.mark.parametrize("script", [DISABLED_SCRIPT, DELAYED_SCRIPT])
+def test_no_frontend_display_does_not_create_unused_main_container(script: str):
+    app_test = AppTest.from_string(script)
+    app_test.run(timeout=5)
+
+    assert not app_test.exception
+    main_containers = collect_blocks(app_test.main, should_take=lambda block: block.type == "flex_container")
+    progress_bars = collect_block_elements(app_test.main, should_take=lambda element: element.type == "progress")
+    assert not main_containers
+    assert not progress_bars
 
 
 def test_asyncio_demo_renders_and_completes():

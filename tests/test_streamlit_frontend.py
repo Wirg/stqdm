@@ -139,6 +139,10 @@ def test_issue_104_backend_false_does_not_emit_console_output(capsys):
             "{l_bar}{bar}{r_bar}",
             lambda i, total: tqdm.format_meter(n=i, total=total, elapsed=i, bar_format="{l_bar}{r_bar}", prefix=DESCRIPTION),
         ),
+        (
+            "{l_bar}{bar:-10b}{r_bar}",
+            lambda i, total: tqdm.format_meter(n=i, total=total, elapsed=i, bar_format="{l_bar}{r_bar}", prefix=DESCRIPTION),
+        ),
     ],
 )
 def test_bar_format(bar_format, get_text):
@@ -151,6 +155,58 @@ def test_bar_format(bar_format, get_text):
                 text=get_text(i=i, total=2),
                 progress=i / len(stqdmed_iterator),
             )
+
+
+def test_escaped_bar_placeholder_is_treated_as_text_not_progress_bar():
+    stqdmed_iterator = stqdm(range(2), bar_format="{{bar}}", desc=DESCRIPTION, **TQDM_RUN_EVERY_ITERATION)
+
+    for _ in stqdmed_iterator:
+        assert_frontend_as_been_called_with(
+            stqdmed_iterator,
+            text="{bar}",
+            progress=None,
+        )
+
+
+@pytest.mark.parametrize(
+    "bar_format,expected_barless_format",
+    [
+        ("{bar:10}", ""),
+        ("{bar:-10b}", ""),
+        ("{bar:a}", ""),
+        ("{bar:u}", ""),
+        ("{bar:{width}}", ""),
+        ("{bar:>{width}}", ""),
+        ("{bar:}", ""),
+        ("{l_bar}{bar}{r_bar}", "{l_bar}{r_bar}"),
+        ("{desc:}", "{desc}"),
+        ("{desc!s:}", "{desc!s}"),
+        ("{n:}", "{n}"),
+        ("{n!s:}", "{n!s}"),
+        ("{desc} {percentage:.0f}%", "{desc} {percentage:.0f}%"),
+        ("{{bar}}", "{{bar}}"),
+        ("{n:{width}}", "{n:{width}}"),
+        ("{{x}}{bar}{unknown:{width}}", "{{x}}{unknown:{width}}"),
+    ],
+)
+def test_remove_bar_from_format_preserves_non_bar_format_fields(bar_format, expected_barless_format):
+    assert stqdm.remove_bar_from_format(bar_format) == expected_barless_format
+
+
+@pytest.mark.parametrize("bar_format", ["{bar!s}", "{bar!r}", "{bar!a}", "{bar!s:}"])
+def test_bar_placeholder_with_conversion_is_not_treated_as_progress_bar(bar_format):
+    frontend_config = stqdm.build_frontend_config_overrides(bar_format=bar_format)
+
+    assert frontend_config["should_display_progress_bar"] is False
+    assert frontend_config["should_display_text"] is True
+
+
+@pytest.mark.parametrize("bar_format", ["{desc:}", "{desc!s:}", "{n:}", "{n!s:}"])
+def test_reconstructed_format_without_bar_does_not_display_progress_bar(bar_format):
+    frontend_config = stqdm.build_frontend_config_overrides(bar_format=bar_format)
+
+    assert frontend_config["should_display_progress_bar"] is False
+    assert frontend_config["should_display_text"] is True
 
 
 def test_backend_format_is_not_rewritten_by_frontend_compatibility():
